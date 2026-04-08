@@ -105,17 +105,30 @@ if st.sidebar.button("Atualizar Radar"):
         if not noticias:
             st.warning("Nenhuma notícia nova encontrada para este filtro.")
         else:
-            for entry in noticias[:15]: # Limita as 15 mais recentes
-                dt = entry.published
+            # 1. Organiza da mais nova para a mais velha
+            noticias_ordenadas = sorted(
+                noticias, 
+                key=lambda x: x.published_parsed, 
+                reverse=True
+            )
+
+            # 2. Loop para exibir os cards organizados
+            for entry in noticias_ordenadas[:15]: 
+                # Converte para data do Brasil (Dia/Mês/Ano)
+                dt = datetime(*entry.published_parsed[:6]).strftime('%d/%m/%Y %H:%M')
+                
                 st.markdown(f"""
                     <div class="card">
                         <span class="tag">{categoria}</span>
-                        <h4 style="margin: 5px 0;">{entry.title}</h4>
-                        <p style="font-size: 0.9rem; color: #888;">Publicado em: {dt}</p>
-                        <a href="{entry.link}" target="_blank" style="color:{COR_AZUL}; text-decoration:none; font-weight:bold;">Ver Pesquisa Completa →</a>
+                        <h4 style="color: {COR_CINZA} !important;">{entry.title}</h4>
+                        <p style="font-size: 0.85rem; color: #888;">Publicado em: {dt}</p>
+                        <a href="{entry.link}" target="_blank" class="btn-link" 
+                           style="color:{COR_AZUL}; text-decoration:none; font-weight:bold;">
+                           Acessar Notícia Completa →
+                        </a>
                     </div>
                 """, unsafe_allow_html=True)
 
-# 5. Rodapé Informativo
+# 5. Rodapé Informativo (Fora do bloco de repetição)
 st.divider()
 st.caption("Ferramenta desenvolvida para o ecossistema Vale dos Ipês - Lavras/MG")
