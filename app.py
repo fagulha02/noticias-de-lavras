@@ -57,6 +57,9 @@ st.markdown(f"""
 
     .header-container {{ text-align: center; padding: 50px 0; background: linear-gradient(180deg, #161B22 0%, #0E1117 100%); border-bottom: 1px solid #333; }}
     .logo-img {{ filter: drop-shadow(0 0 15px rgba(255,255,255,0.3)); margin-bottom: 20px; }}
+    
+    /* Estilização para o formulário de diagnóstico */
+    .stExpander {{ background: {COR_FUNDO_CARD} !important; border: 1px solid #333 !important; border-radius: 15px !important; }}
     </style>
 """, unsafe_allow_html=True)
 
@@ -77,7 +80,8 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-tab_noticias, tab_eventos = st.tabs(["📰 NOTÍCIAS", "📅 EVENTOS"])
+# 5. ESTRUTURA DE ABAS
+tab_noticias, tab_eventos, tab_diagnostico = st.tabs(["📰 NOTÍCIAS", "📅 EVENTOS", "🚀 DIAGNÓSTICO STARTUP"])
 
 # --- ABA NOTÍCIAS ---
 with tab_noticias:
@@ -85,7 +89,7 @@ with tab_noticias:
     _, col_mid, _ = st.columns([1, 2, 1])
     with col_mid:
         topico_noticia = st.selectbox("Selecione o Tópico", ["Geral", "Economia", "Educação", "Inovação", "Saúde", "Rankings"])
-        btn_not = st.button("ATUALIZAR RADAR")
+        btn_not = st.button("ATUALIZAR RADAR", key="btn_not")
 
     if btn_not:
         termos_map = {
@@ -95,7 +99,6 @@ with tab_noticias:
         }
         with st.spinner("Sincronizando por data..."):
             noticias = buscar_dados(termos_map[topico_noticia])
-            # ORDENAÇÃO CRONOLÓGICA
             noticias_ord = sorted(noticias, key=lambda x: x.published_parsed, reverse=True)
             
             for n in noticias_ord[:12]:
@@ -117,14 +120,13 @@ with tab_eventos:
         local_ev = st.selectbox("Abrangência Regional", ["Lavras", "Minas Gerais", "Brasil", "Mundial"])
         tema_ev = st.selectbox("Tema do Evento", ["Todos os temas", "Tecnologia", "Empreendedorismo", "Cultura", "Universitário"])
         st.markdown('<div class="btn-eventos">', unsafe_allow_html=True)
-        btn_ev = st.button("BUSCAR EVENTOS")
+        btn_ev = st.button("BUSCAR EVENTOS", key="btn_ev")
         st.markdown('</div>', unsafe_allow_html=True)
 
     if btn_ev:
         with st.spinner("Mapeando agenda..."):
             termo_final = f"eventos {tema_ev if tema_ev != 'Todos os temas' else ''}"
             eventos = buscar_dados(termo_final, local_ev)
-            # ORDENAÇÃO CRONOLÓGICA
             eventos_ord = sorted(eventos, key=lambda x: x.published_parsed, reverse=True)
             
             for e in eventos_ord[:12]:
@@ -140,5 +142,65 @@ with tab_eventos:
                         </a>
                     </div>
                 """, unsafe_allow_html=True)
+
+# --- ABA DIAGNÓSTICO STARTUP ---
+with tab_diagnostico:
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(f"""
+        <div style='text-align: center; margin-bottom: 30px;'>
+            <h2 style='color:{COR_VERDE}; font-weight:700;'>Censo Semestral de Inovação</h2>
+            <p style='color:#888;'>Diagnóstico e Monitoramento de Startups — Vale dos Ipês</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    with st.expander("🔒 Consentimento & Privacidade (LGPD)", expanded=True):
+        st.write("Em conformidade com a LGPD (Lei nº 13.709/2018), informe seu consentimento:")
+        c1 = st.checkbox("Autorizo o tratamento de dados empresariais para planejamento de políticas públicas.")
+        c2 = st.checkbox("Autorizo o tratamento de dados pessoais dos sócios para contato institucional.")
+        c3 = st.checkbox("Estou ciente do uso de dados anonimizados em relatórios do ecossistema.")
+
+    if c1 and c2 and c3:
+        with st.form("form_startup_diagnostico"):
+            st.markdown(f"<h4 style='color:{COR_AZUL};'>🏢 Informações Gerais</h4>", unsafe_allow_html=True)
+            col_f1, col_f2 = st.columns(2)
+            with col_f1:
+                nome_st = st.text_input("Nome da Startup *")
+                cnpj_st = st.text_input("CNPJ ou CPF do representante")
+            with col_f2:
+                vertical_st = st.selectbox("Vertical de atuação", ["AgriTech", "HealthTech", "GovTech", "EdTech", "FinTech", "Outro"])
+                fase_st = st.select_slider("Fase do negócio", options=["Ideação", "Validação", "Operação", "Tração", "Escala"])
+            
+            resumo_st = st.text_area("Resumo da Solução (Dor e Proposta de Valor)")
+
+            st.markdown(f"<h4 style='color:{COR_LARANJA};'>👥 Sócios & Fundadores</h4>", unsafe_allow_html=True)
+            col_s1, col_s2 = st.columns(2)
+            with col_s1:
+                socio_n = st.text_input("Sócio Principal *")
+                socio_e = st.text_input("E-mail para contato *")
+            with col_s2:
+                socio_t = st.text_input("Telefone (WhatsApp) *")
+                socio_l = st.text_input("LinkedIn (Perfil)")
+
+            st.markdown(f"<h4 style='color:{COR_VERDE};'>📈 Tração & Lavras</h4>", unsafe_allow_html=True)
+            col_t1, col_t2 = st.columns(2)
+            with col_t1:
+                fat_st = st.selectbox("Faturamento Bruto Anual", ["Ainda não faturamos", "Até R$ 50k", "R$ 50k a R$ 250k", "Acima de R$ 250k"])
+            with col_t2:
+                recursos_st = st.radio("Possui recursos para os próximos 12 meses?", ["Sim", "Sim, com risco", "Não"])
+            
+            projetos_lvrs = st.multiselect("Projetos LVRS+ com potencial de interação:", 
+                                         ["Cluster AgroFoodTech", "Hub IpêTech", "Blue Zone Lavras", "Festival do Futuro", "Circuito Vale dos Ipês"])
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            submit_diag = st.form_submit_button("ENVIAR DIAGNÓSTICO")
+
+            if submit_diag:
+                if nome_st and socio_e:
+                    st.success("✔ Diagnóstico enviado com sucesso! Sua startup agora está no mapa do Vale dos Ipês.")
+                    st.balloons()
+                else:
+                    st.error("Campos obrigatórios (*) não preenchidos.")
+    else:
+        st.info("⚠ Aceite os termos de privacidade acima para liberar o formulário.")
 
 st.markdown("<br><br><p style='text-align:center; opacity:0.3; font-size:0.7rem;'>VALE DOS IPÊS • SISTEMA DE INTELIGÊNCIA CRONOLÓGICA</p>", unsafe_allow_html=True)
