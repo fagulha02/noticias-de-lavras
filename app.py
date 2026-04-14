@@ -3,7 +3,7 @@ import feedparser
 import urllib.parse
 from datetime import datetime
 
-# 1. IDENTIDADE VISUAL
+# 1. IDENTIDADE VISUAL (Dark Mode Premium)
 COR_VERDE = "#92BC4E"
 COR_LARANJA = "#EB6923"
 COR_AZUL = "#00ADEF"
@@ -12,7 +12,7 @@ COR_FUNDO_CARD = "#1E2129"
 
 st.set_page_config(page_title="Radar Vale dos Ipês", layout="wide", page_icon="🌳")
 
-# 2. CSS CUSTOMIZADO (Correção de visibilidade e Design)
+# 2. CSS CUSTOMIZADO (Correção de Contraste nos Menus)
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap');
@@ -20,11 +20,20 @@ st.markdown(f"""
     .stApp {{ background-color: #0E1117; }}
     * {{ font-family: 'Montserrat', sans-serif; color: {COR_TEXTO}; }}
 
-    /* Correção do Texto no Selectbox (Preto no fundo branco) */
+    /* --- CORREÇÃO CRÍTICA: TEXTO DOS MENUS (SELECTBOX) --- */
+    /* Garante que o texto selecionado e as opções da lista fiquem pretas e visíveis */
     div[data-baseweb="select"] * {{
-        color: black !important;
+        color: #000000 !important;
+        font-weight: 600 !important;
+    }}
+    
+    /* Ajusta a cor do texto dentro da lista suspensa especificamente */
+    ul[role="listbox"] li {{
+        color: #000000 !important;
+        background-color: #FFFFFF !important;
     }}
 
+    /* Cards Estilizados */
     .card {{
         background: {COR_FUNDO_CARD};
         padding: 25px;
@@ -85,33 +94,34 @@ tab_noticias, tab_eventos, tab_oportunidades, tab_diagnostico = st.tabs([
     "📰 NOTÍCIAS", "📅 EVENTOS", "💡 OPORTUNIDADES", "🚀 DIAGNÓSTICO STARTUP"
 ])
 
-# --- ABAS NOTÍCIAS E EVENTOS (MANTIDAS) ---
+# --- ABA NOTÍCIAS ---
 with tab_noticias:
     st.markdown("<br>", unsafe_allow_html=True)
     _, col_mid, _ = st.columns([1, 2, 1])
     with col_mid:
-        topico_noticia = st.selectbox("Selecione o Tópico", ["Geral", "Economia", "Educação", "Inovação", "Saúde", "Rankings"])
+        topico_noticia = st.selectbox("Selecione o Tópico", ["Geral", "Economia", "Educação", "Inovação", "Saúde", "Rankings"], key="sel_not")
         btn_not = st.button("ATUALIZAR RADAR", key="btn_not")
     if btn_not:
         termos_map = {"Geral": "Lavras MG", "Economia": "investimento startup Lavras", "Educação": "UFLA pesquisa Lavras", "Inovação": "inovação tecnologia Lavras", "Saúde": "saúde hospital Lavras", "Rankings": "ranking melhores cidades Lavras MG"}
-        with st.spinner("Buscando notícias..."):
+        with st.spinner("Sincronizando por data..."):
             noticias = buscar_dados(termos_map[topico_noticia])
             noticias_ord = sorted(noticias, key=lambda x: x.published_parsed, reverse=True)
             for n in noticias_ord[:12]:
                 data = datetime(*n.published_parsed[:6]).strftime('%d/%m/%Y %H:%M')
                 st.markdown(f'<div class="card" style="border-left: 5px solid {COR_AZUL};"><small style="color:{COR_AZUL}; font-weight:700;">{topico_noticia.upper()}</small><h3 style="margin:12px 0; font-size:1.3rem;">{n.title}</h3><p style="color:#888; font-size:0.85rem;">📅 {data}</p><a href="{n.link}" target="_blank" style="color:{COR_AZUL}; text-decoration:none; font-weight:700;">LER NOTÍCIA →</a></div>', unsafe_allow_html=True)
 
+# --- ABA EVENTOS ---
 with tab_eventos:
     st.markdown("<br>", unsafe_allow_html=True)
     _, col_mid_ev, _ = st.columns([1, 2, 1])
     with col_mid_ev:
-        local_ev = st.selectbox("Abrangência Regional", ["Lavras", "Minas Gerais", "Brasil", "Mundial"])
-        tema_ev = st.selectbox("Tema do Evento", ["Todos os temas", "Tecnologia", "Empreendedorismo", "Cultura", "Universitário"])
+        local_ev = st.selectbox("Abrangência Regional", ["Lavras", "Minas Gerais", "Brasil", "Mundial"], key="sel_ev_loc")
+        tema_ev = st.selectbox("Tema do Evento", ["Todos os temas", "Tecnologia", "Empreendedorismo", "Cultura", "Universitário"], key="sel_ev_tema")
         st.markdown('<div class="btn-eventos">', unsafe_allow_html=True)
         btn_ev = st.button("BUSCAR EVENTOS", key="btn_ev")
         st.markdown('</div>', unsafe_allow_html=True)
     if btn_ev:
-        with st.spinner("Buscando eventos..."):
+        with st.spinner("Mapeando agenda..."):
             termo_final = f"eventos {tema_ev if tema_ev != 'Todos os temas' else ''}"
             eventos = buscar_dados(termo_final, local_ev)
             eventos_ord = sorted(eventos, key=lambda x: x.published_parsed, reverse=True)
@@ -119,20 +129,14 @@ with tab_eventos:
                 data_e = datetime(*e.published_parsed[:6]).strftime('%d/%m/%Y')
                 st.markdown(f'<div class="card" style="border-left: 5px solid {COR_LARANJA};"><small style="color:{COR_LARANJA}; font-weight:700;">{tema_ev.upper()}</small><h3 style="margin:12px 0; font-size:1.3rem;">{e.title}</h3><p style="color:#888; font-size:0.85rem;">📅 {data_e}</p><a href="{e.link}" target="_blank" style="display:inline-block; margin-top:10px; padding:10px 30px; background:{COR_LARANJA}; color:white; border-radius:50px; text-decoration:none; font-size:0.8rem; font-weight:700;">VER DETALHES</a></div>', unsafe_allow_html=True)
 
-# --- ABA: OPORTUNIDADES (REFORMULADA) ---
+# --- ABA OPORTUNIDADES ---
 with tab_oportunidades:
     st.markdown("<br>", unsafe_allow_html=True)
     _, col_mid_op, _ = st.columns([1, 2, 1])
     with col_mid_op:
-        perfil_op = st.selectbox("Quem é você?", [
-            "Todos os Perfis", "Empresas Consolidadas", "Startups", "Empreendedores", "Estudantes"
-        ])
-        abrangencia_op = st.selectbox("Abrangência", [
-            "Lavras", "Sul de Minas", "Minas Gerais", "Sudeste", "Brasil", "Mundo"
-        ])
-        st.markdown("<p style='font-size:0.8rem; color:#888; text-align:center;'>O Radar organiza automaticamente do mais recente para o mais antigo.</p>", unsafe_allow_html=True)
+        perfil_op = st.selectbox("Quem é você?", ["Todos os Perfis", "Empresas Consolidadas", "Startups", "Empreendedores", "Estudantes"], key="sel_op_perfil")
+        abrangencia_op = st.selectbox("Abrangência", ["Lavras", "Sul de Minas", "Minas Gerais", "Sudeste", "Brasil", "Mundo"], key="sel_op_loc")
         btn_op = st.button("MAPEAR OPORTUNIDADES", key="btn_op")
-
     if btn_op:
         perfis_map = {
             "Todos os Perfis": "edital fomento startup investimento vaga estágio inovação aberta",
@@ -141,48 +145,25 @@ with tab_oportunidades:
             "Empreendedores": "oportunidade mercado tendência franquia inovação nicho",
             "Estudantes": "vaga estágio startup trainee inovação bolsa pesquisa ufla"
         }
-        
-        # Ajuste geográfico da busca
-        loc_map = {
-            "Lavras": "Lavras MG", "Sul de Minas": "Sul de Minas", 
-            "Minas Gerais": "Minas Gerais", "Sudeste": "Sudeste Brasil", 
-            "Brasil": "Brasil", "Mundo": ""
-        }
-        
-        with st.spinner("Mapeando oportunidades estratégicas..."):
+        loc_map = {"Lavras": "Lavras MG", "Sul de Minas": "Sul de Minas", "Minas Gerais": "Minas Gerais", "Sudeste": "Sudeste Brasil", "Brasil": "Brasil", "Mundo": ""}
+        with st.spinner("Mapeando oportunidades..."):
             ops = buscar_dados(perfis_map[perfil_op], loc_map[abrangencia_op])
-            # Filtro por data integrado: Ordenação cronológica
             ops_ord = sorted(ops, key=lambda x: x.published_parsed, reverse=True)
-            
-            if not ops_ord:
-                st.info("Nenhuma oportunidade encontrada com esses filtros no momento.")
-            else:
-                for o in ops_ord[:15]:
-                    data_o = datetime(*o.published_parsed[:6]).strftime('%d/%m/%Y')
-                    st.markdown(f"""
-                        <div class="card" style="border-left: 5px solid {COR_VERDE};">
-                            <small style="color:{COR_VERDE}; font-weight:700;">OPORTUNIDADE • {abrangencia_op.upper()}</small>
-                            <h3 style="margin:12px 0; font-size:1.3rem;">{o.title}</h3>
-                            <p style="color:#888; font-size:0.85rem;">📅 Detectado em: {data_o}</p>
-                            <a href="{o.link}" target="_blank" 
-                               style="display:inline-block; margin-top:10px; padding:10px 30px; background:{COR_VERDE}; color:#0E1117; border-radius:50px; text-decoration:none; font-size:0.8rem; font-weight:700;">
-                               SABER MAIS SOBRE A OPORTUNIDADE
-                            </a>
-                        </div>
-                    """, unsafe_allow_html=True)
+            for o in ops_ord[:15]:
+                data_o = datetime(*o.published_parsed[:6]).strftime('%d/%m/%Y')
+                st.markdown(f'<div class="card" style="border-left: 5px solid {COR_VERDE};"><small style="color:{COR_VERDE}; font-weight:700;">OPORTUNIDADE • {abrangencia_op.upper()}</small><h3 style="margin:12px 0; font-size:1.3rem;">{o.title}</h3><p style="color:#888; font-size:0.85rem;">📅 {data_o}</p><a href="{o.link}" target="_blank" style="display:inline-block; margin-top:10px; padding:10px 30px; background:{COR_VERDE}; color:#0E1117; border-radius:50px; text-decoration:none; font-size:0.8rem; font-weight:700;">SABER MAIS</a></div>', unsafe_allow_html=True)
 
-# --- ABA DIAGNÓSTICO (MANTIDA) ---
+# --- ABA DIAGNÓSTICO ---
 with tab_diagnostico:
     st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown(f"<div style='text-align: center; margin-bottom: 30px;'><h2 style='color:{COR_VERDE}; font-weight:700;'>Censo Semestral de Inovação</h2><p style='color:#888;'>Diagnóstico e Monitoramento de Startups — Vale dos Ipês</p></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align: center; margin-bottom: 30px;'><h2 style='color:{COR_VERDE}; font-weight:700;'>Censo Semestral de Inovação</h2><p style='color:#888;'>Diagnóstico de Startups — Vale dos Ipês</p></div>", unsafe_allow_html=True)
     with st.expander("🔒 Consentimento & Privacidade (LGPD)", expanded=True):
         st.write("Em conformidade com a LGPD (Lei nº 13.709/2018), informe seu consentimento:")
-        c1, c2, c3 = st.checkbox("Autorizo o tratamento de dados empresariais."), st.checkbox("Autorizo o tratamento de dados pessoais dos sócios."), st.checkbox("Estou ciente do uso de dados anonimizados.")
+        c1, c2, c3 = st.checkbox("Autorizo o tratamento de dados empresariais."), st.checkbox("Autorizo o tratamento de dados pessoais."), st.checkbox("Estou ciente do uso de dados anonimizados.")
     if c1 and c2 and c3:
         with st.form("form_diag"):
-            st.markdown(f"<h4 style='color:{COR_AZUL};'>🏢 Informações Gerais</h4>", unsafe_allow_html=True)
             n_st = st.text_input("Nome da Startup *")
-            v_st = st.selectbox("Vertical", ["AgriTech", "HealthTech", "GovTech", "EdTech", "FinTech", "Outro"])
+            v_st = st.selectbox("Vertical", ["AgriTech", "HealthTech", "GovTech", "EdTech", "FinTech", "Outro"], key="sel_diag_v")
             s_diag = st.form_submit_button("ENVIAR DIAGNÓSTICO")
             if s_diag and n_st: st.success("✔ Diagnóstico enviado!"); st.balloons()
     else: st.info("⚠ Aceite os termos para liberar o formulário.")
