@@ -1,9 +1,9 @@
 import streamlit as st
 import feedparser
 import urllib.parse
-from datetime import datetime
+from datetime import datetime, timedelta
 
-# 1. IDENTIDADE VISUAL (Dark Mode Premium - Vale dos Ipês)
+# 1. IDENTIDADE VISUAL
 COR_VERDE = "#92BC4E"
 COR_LARANJA = "#EB6923"
 COR_AZUL = "#00ADEF"
@@ -12,217 +12,109 @@ COR_FUNDO_CARD = "#1E2129"
 
 st.set_page_config(page_title="Radar Vale dos Ipês", layout="wide", page_icon="🌳")
 
-# 2. CSS CUSTOMIZADO (Correção Definitiva de Contraste e Design)
+# 2. CSS (Com correção de contraste e design dark)
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap');
-    
     .stApp {{ background-color: #0E1117; }}
     * {{ font-family: 'Montserrat', sans-serif; color: {COR_TEXTO}; }}
-
-    /* --- CORREÇÃO DE CONTRASTE DOS MENUS (SELECTBOX) --- */
-    /* Fundo do campo selecionado */
-    div[data-baseweb="select"] > div {{
-        background-color: #161B22 !important;
-        color: white !important;
-        border-color: #333 !important;
-    }}
-
-    /* Texto dentro do campo quando fechado */
-    div[data-baseweb="select"] span {{
-        color: white !important;
-    }}
-
-    /* Lista que abre (Dropdown) */
-    div[data-baseweb="popover"] ul {{
-        background-color: #161B22 !important;
-        border: 1px solid #333 !important;
-    }}
-
-    /* Itens da lista */
-    div[data-baseweb="popover"] li {{
-        color: white !important;
-        background-color: #161B22 !important;
-        transition: 0.2s;
-    }}
-
-    /* Efeito de destaque (Hover) no menu */
-    div[data-baseweb="popover"] li:hover {{
-        background-color: {COR_VERDE} !important;
-        color: #0E1117 !important;
-    }}
-
-    /* Cards Estilizados */
-    .card {{
-        background: {COR_FUNDO_CARD};
-        padding: 25px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-        border: 1px solid #333;
-        transition: all 0.3s ease;
-    }}
+    div[data-baseweb="select"] > div {{ background-color: #161B22 !important; color: white !important; }}
+    div[data-baseweb="select"] span {{ color: white !important; }}
+    div[data-baseweb="popover"] ul {{ background-color: #161B22 !important; }}
+    div[data-baseweb="popover"] li {{ color: white !important; background-color: #161B22 !important; }}
+    div[data-baseweb="popover"] li:hover {{ background-color: {COR_VERDE} !important; color: #0E1117 !important; }}
+    .card {{ background: {COR_FUNDO_CARD}; padding: 25px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #333; transition: 0.3s; }}
     .card:hover {{ border-color: {COR_VERDE}; transform: translateY(-3px); }}
-
-    /* Botões com Contorno Forte e Centralização */
-    div.stButton > button {{
-        background-color: transparent;
-        color: white;
-        border: 3px solid {COR_VERDE} !important;
-        border-radius: 50px;
-        padding: 12px 50px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        transition: all 0.4s ease;
-        display: block;
-        margin: 0 auto;
-    }}
-    
-    div.stButton > button:hover {{
-        background-color: {COR_VERDE} !important;
-        box-shadow: 0 0 20px {COR_VERDE};
-        color: #0E1117 !important;
-    }}
-
-    .btn-eventos div.stButton > button {{ border-color: {COR_LARANJA} !important; }}
-    .btn-eventos div.stButton > button:hover {{ background-color: {COR_LARANJA} !important; box-shadow: 0 0 20px {COR_LARANJA}; }}
-
-    .header-container {{ text-align: center; padding: 50px 0; background: linear-gradient(180deg, #161B22 0%, #0E1117 100%); border-bottom: 1px solid #333; }}
-    .logo-img {{ filter: drop-shadow(0 0 15px rgba(255,255,255,0.3)); margin-bottom: 20px; }}
-    
-    .stExpander {{ background: {COR_FUNDO_CARD} !important; border: 1px solid #333 !important; border-radius: 15px !important; }}
+    div.stButton > button {{ background-color: transparent; color: white; border: 3px solid {COR_VERDE} !important; border-radius: 50px; padding: 10px 40px; font-weight: 700; text-transform: uppercase; transition: 0.4s; display: block; margin: 0 auto; }}
+    div.stButton > button:hover {{ background-color: {COR_VERDE} !important; box-shadow: 0 0 20px {COR_VERDE}; color: #0E1117 !important; }}
+    .header-container {{ text-align: center; padding: 40px 0; background: linear-gradient(180deg, #161B22 0%, #0E1117 100%); border-bottom: 1px solid #333; }}
     </style>
 """, unsafe_allow_html=True)
 
-# 3. MOTOR DE BUSCA
-def buscar_dados(termo, local=""):
+# 3. MOTOR DE BUSCA AVANÇADO
+def buscar_dados(termo, local="", periodo="1m"):
+    # periodo: 1d (últimas 24h), 7d (última semana), 1m (último mês)
     query = f"{termo} {local}".strip()
     query_encoded = urllib.parse.quote(query)
-    url = f"https://news.google.com/rss/search?q={query_encoded}&hl=pt-BR&gl=BR&ceid=BR:pt-419"
+    # Adicionando o parâmetro 'when' para garantir oportunidades recentes
+    url = f"https://news.google.com/rss/search?q={query_encoded}+when:{periodo}&hl=pt-BR&gl=BR&ceid=BR:pt-419"
     feed = feedparser.parse(url)
     return feed.entries
 
 # 4. HEADER
 st.markdown(f"""
     <div class="header-container">
-        <img src="https://raw.githubusercontent.com/fagulha02/noticias-de-lavras/main/logo_vale.png" width="220" class="logo-img">
-        <h1 style="font-weight:700; font-size: 2.6rem; margin:0;">Radar de Inteligência</h1>
-        <p style="color:{COR_VERDE}; font-weight:400; font-size: 1.2rem; letter-spacing: 2px;">VALE DOS IPÊS • LAVRAS/MG</p>
+        <img src="https://raw.githubusercontent.com/fagulha02/noticias-de-lavras/main/logo_vale.png" width="180" style="filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));">
+        <h1 style="font-weight:700; font-size: 2.3rem; margin:10px 0;">Radar de Inteligência</h1>
+        <p style="color:{COR_VERDE}; font-weight:400; letter-spacing: 2px;">VALE DOS IPÊS • HUB DE OPORTUNIDADES</p>
     </div>
 """, unsafe_allow_html=True)
 
-# 5. ESTRUTURA DE ABAS
-tab_noticias, tab_eventos, tab_oportunidades, tab_diagnostico = st.tabs([
-    "📰 NOTÍCIAS", "📅 EVENTOS", "💡 OPORTUNIDADES", "🚀 DIAGNÓSTICO STARTUP"
-])
+tabs = st.tabs(["📰 NOTÍCIAS", "📅 EVENTOS", "💡 OPORTUNIDADES", "🚀 DIAGNÓSTICO"])
 
-# --- ABA NOTÍCIAS ---
-with tab_noticias:
+# --- ABA OPORTUNIDADES (REFORÇADA) ---
+with tabs[2]:
     st.markdown("<br>", unsafe_allow_html=True)
-    _, col_mid, _ = st.columns([1, 2, 1])
-    with col_mid:
-        topico_noticia = st.selectbox("Selecione o Tópico", ["Geral", "Economia", "Educação", "Inovação", "Saúde", "Rankings"], key="n_top")
-        btn_not = st.button("ATUALIZAR RADAR", key="btn_not")
+    c1, c2, c3 = st.columns([2, 1, 1])
+    
+    with c1:
+        perfil = st.selectbox("Para quem busca?", 
+                            ["Empresas Consolidadas", "Startups", "Empreendedores", "Estudantes", "Todas"])
+    with c2:
+        abrangencia = st.selectbox("Onde?", ["Lavras e Região", "Minas Gerais", "Brasil", "Mundo"])
+    with c3:
+        tempo = st.selectbox("Publicado há:", ["7 dias", "30 dias", "90 dias"])
 
-    if btn_not:
-        termos_map = {
-            "Geral": "Lavras MG", "Economia": "investimento startup Lavras",
-            "Educação": "UFLA pesquisa Lavras", "Inovação": "inovação tecnologia Lavras",
-            "Saúde": "saúde hospital Lavras", "Rankings": "ranking melhores cidades Lavras MG"
-        }
-        with st.spinner("Sincronizando por data..."):
-            noticias = buscar_dados(termos_map[topico_noticia])
-            noticias_ord = sorted(noticias, key=lambda x: x.published_parsed, reverse=True)
-            for n in noticias_ord[:12]:
-                data = datetime(*n.published_parsed[:6]).strftime('%d/%m/%Y %H:%M')
-                st.markdown(f"""
-                    <div class="card" style="border-left: 5px solid {COR_AZUL};">
-                        <small style="color:{COR_AZUL}; font-weight:700;">{topico_noticia.upper()}</small>
-                        <h3 style="margin:12px 0; font-size:1.3rem;">{n.title}</h3>
-                        <p style="color:#888; font-size:0.85rem;">📅 Publicado em: {data}</p>
-                        <a href="{n.link}" target="_blank" style="color:{COR_AZUL}; text-decoration:none; font-weight:700;">LER NOTÍCIA →</a>
-                    </div>
-                """, unsafe_allow_html=True)
-
-# --- ABA EVENTOS ---
-with tab_eventos:
-    st.markdown("<br>", unsafe_allow_html=True)
-    _, col_mid_ev, _ = st.columns([1, 2, 1])
-    with col_mid_ev:
-        local_ev = st.selectbox("Abrangência Regional", ["Lavras", "Minas Gerais", "Brasil", "Mundial"], key="e_loc")
-        tema_ev = st.selectbox("Tema do Evento", ["Todos os temas", "Tecnologia", "Empreendedorismo", "Cultura", "Universitário"], key="e_tema")
-        st.markdown('<div class="btn-eventos">', unsafe_allow_html=True)
-        btn_ev = st.button("BUSCAR EVENTOS", key="btn_ev")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    if btn_ev:
-        with st.spinner("Mapeando agenda..."):
-            termo_final = f"eventos {tema_ev if tema_ev != 'Todos os temas' else ''}"
-            eventos = buscar_dados(termo_final, local_ev)
-            eventos_ord = sorted(eventos, key=lambda x: x.published_parsed, reverse=True)
-            for e in eventos_ord[:12]:
-                data_e = datetime(*e.published_parsed[:6]).strftime('%d/%m/%Y')
-                st.markdown(f"""
-                    <div class="card" style="border-left: 5px solid {COR_LARANJA};">
-                        <small style="color:{COR_LARANJA}; font-weight:700;">{tema_ev.upper()}</small>
-                        <h3 style="margin:12px 0; font-size:1.3rem;">{e.title}</h3>
-                        <p style="color:#888; font-size:0.85rem;">📅 Divulgado em: {data_e}</p>
-                        <a href="{e.link}" target="_blank" 
-                           style="display:inline-block; margin-top:10px; padding:10px 30px; background:{COR_LARANJA}; color:white; border-radius:50px; text-decoration:none; font-size:0.8rem; font-weight:700;">
-                           VER DETALHES
-                        </a>
-                    </div>
-                """, unsafe_allow_html=True)
-
-# --- ABA OPORTUNIDADES ---
-with tab_oportunidades:
-    st.markdown("<br>", unsafe_allow_html=True)
-    _, col_mid_op, _ = st.columns([1, 2, 1])
-    with col_mid_op:
-        perfil_op = st.selectbox("Quem é você?", ["Todos os Perfis", "Empresas Consolidadas", "Startups", "Empreendedores", "Estudantes"], key="o_perfil")
-        abrangencia_op = st.selectbox("Abrangência", ["Lavras", "Sul de Minas", "Minas Gerais", "Sudeste", "Brasil", "Mundo"], key="o_loc")
-        btn_op = st.button("MAPEAR OPORTUNIDADES", key="btn_op")
+    btn_op = st.button("BUSCAR OPORTUNIDADES ATIVAS")
 
     if btn_op:
-        perfis_map = {
-            "Todos os Perfis": "edital fomento startup investimento vaga estágio inovação aberta",
-            "Empresas Consolidadas": "inovação aberta open innovation parcerias tecnologias",
-            "Startups": "edital fomento rodada investimento startup aporte anjo fapemig",
-            "Empreendedores": "oportunidade mercado tendência franquia inovação nicho",
-            "Estudantes": "vaga estágio startup trainee inovação bolsa pesquisa ufla"
+        # Dicionário de termos ultra-específicos para evitar "lixo" antigo
+        mapa_termos = {
+            "Empresas Consolidadas": '(chamada "inovação aberta" OR "open innovation" OR "desafio de inovação" OR "edital finep")',
+            "Startups": '("inscrições abertas" OR edital OR chamamento) (startup OR aceleração OR aporte OR "investimento anjo")',
+            "Empreendedores": '("oportunidade de negócio" OR "edital sebrae" OR "franquia inovadora" OR "crédito inovação")',
+            "Estudantes": '("vaga estágio" OR "trainee inovação" OR hackathon OR "bolsa pesquisa" OR "vaga tecnologia")',
+            "Todas": '("inscrições abertas" OR "edital aberto" OR "oportunidade" OR "vaga") (inovação OR startup OR tecnologia)'
         }
-        loc_map = {"Lavras": "Lavras MG", "Sul de Minas": "Sul de Minas", "Minas Gerais": "Minas Gerais", "Sudeste": "Sudeste Brasil", "Brasil": "Brasil", "Mundo": ""}
         
-        with st.spinner("Mapeando oportunidades estratégicas..."):
-            ops = buscar_dados(perfis_map[perfil_op], loc_map[abrangencia_op])
-            ops_ord = sorted(ops, key=lambda x: x.published_parsed, reverse=True)
-            for o in ops_ord[:12]:
-                data_o = datetime(*o.published_parsed[:6]).strftime('%d/%m/%Y')
-                st.markdown(f"""
-                    <div class="card" style="border-left: 5px solid {COR_VERDE};">
-                        <small style="color:{COR_VERDE}; font-weight:700;">OPORTUNIDADE • {abrangencia_op.upper()}</small>
-                        <h3 style="margin:12px 0; font-size:1.3rem;">{o.title}</h3>
-                        <p style="color:#888; font-size:0.85rem;">📅 Detectado em: {data_o}</p>
-                        <a href="{o.link}" target="_blank" 
-                           style="display:inline-block; margin-top:10px; padding:10px 30px; background:{COR_VERDE}; color:#0E1117; border-radius:50px; text-decoration:none; font-size:0.8rem; font-weight:700;">
-                           SABER MAIS
-                        </a>
-                    </div>
-                """, unsafe_allow_html=True)
+        mapa_loc = {
+            "Lavras e Região": "Lavras Sul de Minas",
+            "Minas Gerais": "Minas Gerais",
+            "Brasil": "Brasil",
+            "Mundo": ""
+        }
+        
+        mapa_tempo = {"7 dias": "7d", "30 dias": "1m", "90 dias": "3m"}
 
-# --- ABA DIAGNÓSTICO STARTUP ---
-with tab_diagnostico:
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown(f"<div style='text-align: center; margin-bottom: 30px;'><h2 style='color:{COR_VERDE}; font-weight:700;'>Censo Semestral de Inovação</h2><p style='color:#888;'>Diagnóstico de Startups — Vale dos Ipês</p></div>", unsafe_allow_html=True)
-    with st.expander("🔒 Consentimento & Privacidade (LGPD)", expanded=True):
-        st.write("Em conformidade com a LGPD (Lei nº 13.709/2018), informe seu consentimento:")
-        c1, c2, c3 = st.checkbox("Autorizo o tratamento de dados empresariais."), st.checkbox("Autorizo o tratamento de dados pessoais."), st.checkbox("Estou ciente do uso de dados anonimizados.")
-    if c1 and c2 and c3:
-        with st.form("form_diag"):
-            n_st = st.text_input("Nome da Startup *")
-            v_st = st.selectbox("Vertical", ["AgriTech", "HealthTech", "GovTech", "EdTech", "FinTech", "Outro"], key="d_vert")
-            submit_diag = st.form_submit_button("ENVIAR DIAGNÓSTICO")
-            if submit_diag and n_st: st.success("✔ Diagnóstico enviado!"); st.balloons()
-    else: st.info("⚠ Aceite os termos para liberar o formulário.")
+        with st.spinner("Filtrando oportunidades recentes e editais ativos..."):
+            resultados = buscar_dados(mapa_termos[perfil], mapa_loc[abrangencia], mapa_tempo[tempo])
+            
+            if not resultados:
+                st.info("Nenhuma oportunidade ativa encontrada para este período. Tente aumentar o filtro de tempo.")
+            else:
+                # Ordenação cronológica garantida
+                res_ord = sorted(resultados, key=lambda x: x.published_parsed, reverse=True)
+                
+                for r in res_ord[:20]:
+                    data_pub = datetime(*r.published_parsed[:6]).strftime('%d/%m/%Y')
+                    
+                    # Interface do Card de Oportunidade
+                    st.markdown(f"""
+                        <div class="card" style="border-left: 5px solid {COR_VERDE};">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                <span style="color:{COR_VERDE}; font-weight:700; font-size:0.8rem;">DISPONÍVEL EM: {abrangencia.upper()}</span>
+                                <span style="background:{COR_VERDE}33; color:{COR_VERDE}; padding:2px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold;">ATIVO</span>
+                            </div>
+                            <h3 style="margin:10px 0; font-size:1.2rem; line-height:1.4;">{r.title}</h3>
+                            <p style="color:#888; font-size:0.85rem; margin-bottom:15px;">
+                                📅 Postado em: {data_pub} <br>
+                                📍 Local: {abrangencia}
+                            </p>
+                            <a href="{r.link}" target="_blank" 
+                               style="display:inline-block; padding:10px 25px; background:{COR_VERDE}; color:#0E1117; border-radius:50px; text-decoration:none; font-size:0.8rem; font-weight:700;">
+                               ACESSAR EDITAL / VAGA
+                            </a>
+                        </div>
+                    """, unsafe_allow_html=True)
 
-st.markdown("<br><br><p style='text-align:center; opacity:0.3; font-size:0.7rem;'>VALE DOS IPÊS • HUB DE INTELIGÊNCIA E OPORTUNIDADES</p>", unsafe_allow_html=True)
+# As outras abas (Notícias, Eventos, Diagnóstico) devem seguir o mesmo padrão visual.
