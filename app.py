@@ -3,7 +3,7 @@ import feedparser
 import urllib.parse
 from datetime import datetime
 
-# 1. IDENTIDADE VISUAL (Dark Mode Premium)
+# 1. IDENTIDADE VISUAL (Dark Mode Premium - Vale dos Ipês)
 COR_VERDE = "#92BC4E"
 COR_LARANJA = "#EB6923"
 COR_AZUL = "#00ADEF"
@@ -12,7 +12,7 @@ COR_FUNDO_CARD = "#1E2129"
 
 st.set_page_config(page_title="Radar Vale dos Ipês", layout="wide", page_icon="🌳")
 
-# 2. CSS CUSTOMIZADO (Correção de Contraste nos Menus)
+# 2. CSS CUSTOMIZADO (Correção Definitiva de Contraste e Design)
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap');
@@ -20,17 +20,36 @@ st.markdown(f"""
     .stApp {{ background-color: #0E1117; }}
     * {{ font-family: 'Montserrat', sans-serif; color: {COR_TEXTO}; }}
 
-    /* --- CORREÇÃO CRÍTICA: TEXTO DOS MENUS (SELECTBOX) --- */
-    /* Garante que o texto selecionado e as opções da lista fiquem pretas e visíveis */
-    div[data-baseweb="select"] * {{
-        color: #000000 !important;
-        font-weight: 600 !important;
+    /* --- CORREÇÃO DE CONTRASTE DOS MENUS (SELECTBOX) --- */
+    /* Fundo do campo selecionado */
+    div[data-baseweb="select"] > div {{
+        background-color: #161B22 !important;
+        color: white !important;
+        border-color: #333 !important;
     }}
-    
-    /* Ajusta a cor do texto dentro da lista suspensa especificamente */
-    ul[role="listbox"] li {{
-        color: #000000 !important;
-        background-color: #FFFFFF !important;
+
+    /* Texto dentro do campo quando fechado */
+    div[data-baseweb="select"] span {{
+        color: white !important;
+    }}
+
+    /* Lista que abre (Dropdown) */
+    div[data-baseweb="popover"] ul {{
+        background-color: #161B22 !important;
+        border: 1px solid #333 !important;
+    }}
+
+    /* Itens da lista */
+    div[data-baseweb="popover"] li {{
+        color: white !important;
+        background-color: #161B22 !important;
+        transition: 0.2s;
+    }}
+
+    /* Efeito de destaque (Hover) no menu */
+    div[data-baseweb="popover"] li:hover {{
+        background-color: {COR_VERDE} !important;
+        color: #0E1117 !important;
     }}
 
     /* Cards Estilizados */
@@ -44,7 +63,7 @@ st.markdown(f"""
     }}
     .card:hover {{ border-color: {COR_VERDE}; transform: translateY(-3px); }}
 
-    /* Botões com Contorno Forte */
+    /* Botões com Contorno Forte e Centralização */
     div.stButton > button {{
         background-color: transparent;
         color: white;
@@ -70,6 +89,8 @@ st.markdown(f"""
 
     .header-container {{ text-align: center; padding: 50px 0; background: linear-gradient(180deg, #161B22 0%, #0E1117 100%); border-bottom: 1px solid #333; }}
     .logo-img {{ filter: drop-shadow(0 0 15px rgba(255,255,255,0.3)); margin-bottom: 20px; }}
+    
+    .stExpander {{ background: {COR_FUNDO_CARD} !important; border: 1px solid #333 !important; border-radius: 15px !important; }}
     </style>
 """, unsafe_allow_html=True)
 
@@ -90,6 +111,7 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
+# 5. ESTRUTURA DE ABAS
 tab_noticias, tab_eventos, tab_oportunidades, tab_diagnostico = st.tabs([
     "📰 NOTÍCIAS", "📅 EVENTOS", "💡 OPORTUNIDADES", "🚀 DIAGNÓSTICO STARTUP"
 ])
@@ -99,27 +121,40 @@ with tab_noticias:
     st.markdown("<br>", unsafe_allow_html=True)
     _, col_mid, _ = st.columns([1, 2, 1])
     with col_mid:
-        topico_noticia = st.selectbox("Selecione o Tópico", ["Geral", "Economia", "Educação", "Inovação", "Saúde", "Rankings"], key="sel_not")
+        topico_noticia = st.selectbox("Selecione o Tópico", ["Geral", "Economia", "Educação", "Inovação", "Saúde", "Rankings"], key="n_top")
         btn_not = st.button("ATUALIZAR RADAR", key="btn_not")
+
     if btn_not:
-        termos_map = {"Geral": "Lavras MG", "Economia": "investimento startup Lavras", "Educação": "UFLA pesquisa Lavras", "Inovação": "inovação tecnologia Lavras", "Saúde": "saúde hospital Lavras", "Rankings": "ranking melhores cidades Lavras MG"}
+        termos_map = {
+            "Geral": "Lavras MG", "Economia": "investimento startup Lavras",
+            "Educação": "UFLA pesquisa Lavras", "Inovação": "inovação tecnologia Lavras",
+            "Saúde": "saúde hospital Lavras", "Rankings": "ranking melhores cidades Lavras MG"
+        }
         with st.spinner("Sincronizando por data..."):
             noticias = buscar_dados(termos_map[topico_noticia])
             noticias_ord = sorted(noticias, key=lambda x: x.published_parsed, reverse=True)
             for n in noticias_ord[:12]:
                 data = datetime(*n.published_parsed[:6]).strftime('%d/%m/%Y %H:%M')
-                st.markdown(f'<div class="card" style="border-left: 5px solid {COR_AZUL};"><small style="color:{COR_AZUL}; font-weight:700;">{topico_noticia.upper()}</small><h3 style="margin:12px 0; font-size:1.3rem;">{n.title}</h3><p style="color:#888; font-size:0.85rem;">📅 {data}</p><a href="{n.link}" target="_blank" style="color:{COR_AZUL}; text-decoration:none; font-weight:700;">LER NOTÍCIA →</a></div>', unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div class="card" style="border-left: 5px solid {COR_AZUL};">
+                        <small style="color:{COR_AZUL}; font-weight:700;">{topico_noticia.upper()}</small>
+                        <h3 style="margin:12px 0; font-size:1.3rem;">{n.title}</h3>
+                        <p style="color:#888; font-size:0.85rem;">📅 Publicado em: {data}</p>
+                        <a href="{n.link}" target="_blank" style="color:{COR_AZUL}; text-decoration:none; font-weight:700;">LER NOTÍCIA →</a>
+                    </div>
+                """, unsafe_allow_html=True)
 
 # --- ABA EVENTOS ---
 with tab_eventos:
     st.markdown("<br>", unsafe_allow_html=True)
     _, col_mid_ev, _ = st.columns([1, 2, 1])
     with col_mid_ev:
-        local_ev = st.selectbox("Abrangência Regional", ["Lavras", "Minas Gerais", "Brasil", "Mundial"], key="sel_ev_loc")
-        tema_ev = st.selectbox("Tema do Evento", ["Todos os temas", "Tecnologia", "Empreendedorismo", "Cultura", "Universitário"], key="sel_ev_tema")
+        local_ev = st.selectbox("Abrangência Regional", ["Lavras", "Minas Gerais", "Brasil", "Mundial"], key="e_loc")
+        tema_ev = st.selectbox("Tema do Evento", ["Todos os temas", "Tecnologia", "Empreendedorismo", "Cultura", "Universitário"], key="e_tema")
         st.markdown('<div class="btn-eventos">', unsafe_allow_html=True)
         btn_ev = st.button("BUSCAR EVENTOS", key="btn_ev")
         st.markdown('</div>', unsafe_allow_html=True)
+
     if btn_ev:
         with st.spinner("Mapeando agenda..."):
             termo_final = f"eventos {tema_ev if tema_ev != 'Todos os temas' else ''}"
@@ -127,16 +162,27 @@ with tab_eventos:
             eventos_ord = sorted(eventos, key=lambda x: x.published_parsed, reverse=True)
             for e in eventos_ord[:12]:
                 data_e = datetime(*e.published_parsed[:6]).strftime('%d/%m/%Y')
-                st.markdown(f'<div class="card" style="border-left: 5px solid {COR_LARANJA};"><small style="color:{COR_LARANJA}; font-weight:700;">{tema_ev.upper()}</small><h3 style="margin:12px 0; font-size:1.3rem;">{e.title}</h3><p style="color:#888; font-size:0.85rem;">📅 {data_e}</p><a href="{e.link}" target="_blank" style="display:inline-block; margin-top:10px; padding:10px 30px; background:{COR_LARANJA}; color:white; border-radius:50px; text-decoration:none; font-size:0.8rem; font-weight:700;">VER DETALHES</a></div>', unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div class="card" style="border-left: 5px solid {COR_LARANJA};">
+                        <small style="color:{COR_LARANJA}; font-weight:700;">{tema_ev.upper()}</small>
+                        <h3 style="margin:12px 0; font-size:1.3rem;">{e.title}</h3>
+                        <p style="color:#888; font-size:0.85rem;">📅 Divulgado em: {data_e}</p>
+                        <a href="{e.link}" target="_blank" 
+                           style="display:inline-block; margin-top:10px; padding:10px 30px; background:{COR_LARANJA}; color:white; border-radius:50px; text-decoration:none; font-size:0.8rem; font-weight:700;">
+                           VER DETALHES
+                        </a>
+                    </div>
+                """, unsafe_allow_html=True)
 
 # --- ABA OPORTUNIDADES ---
 with tab_oportunidades:
     st.markdown("<br>", unsafe_allow_html=True)
     _, col_mid_op, _ = st.columns([1, 2, 1])
     with col_mid_op:
-        perfil_op = st.selectbox("Quem é você?", ["Todos os Perfis", "Empresas Consolidadas", "Startups", "Empreendedores", "Estudantes"], key="sel_op_perfil")
-        abrangencia_op = st.selectbox("Abrangência", ["Lavras", "Sul de Minas", "Minas Gerais", "Sudeste", "Brasil", "Mundo"], key="sel_op_loc")
+        perfil_op = st.selectbox("Quem é você?", ["Todos os Perfis", "Empresas Consolidadas", "Startups", "Empreendedores", "Estudantes"], key="o_perfil")
+        abrangencia_op = st.selectbox("Abrangência", ["Lavras", "Sul de Minas", "Minas Gerais", "Sudeste", "Brasil", "Mundo"], key="o_loc")
         btn_op = st.button("MAPEAR OPORTUNIDADES", key="btn_op")
+
     if btn_op:
         perfis_map = {
             "Todos os Perfis": "edital fomento startup investimento vaga estágio inovação aberta",
@@ -146,14 +192,25 @@ with tab_oportunidades:
             "Estudantes": "vaga estágio startup trainee inovação bolsa pesquisa ufla"
         }
         loc_map = {"Lavras": "Lavras MG", "Sul de Minas": "Sul de Minas", "Minas Gerais": "Minas Gerais", "Sudeste": "Sudeste Brasil", "Brasil": "Brasil", "Mundo": ""}
-        with st.spinner("Mapeando oportunidades..."):
+        
+        with st.spinner("Mapeando oportunidades estratégicas..."):
             ops = buscar_dados(perfis_map[perfil_op], loc_map[abrangencia_op])
             ops_ord = sorted(ops, key=lambda x: x.published_parsed, reverse=True)
-            for o in ops_ord[:15]:
+            for o in ops_ord[:12]:
                 data_o = datetime(*o.published_parsed[:6]).strftime('%d/%m/%Y')
-                st.markdown(f'<div class="card" style="border-left: 5px solid {COR_VERDE};"><small style="color:{COR_VERDE}; font-weight:700;">OPORTUNIDADE • {abrangencia_op.upper()}</small><h3 style="margin:12px 0; font-size:1.3rem;">{o.title}</h3><p style="color:#888; font-size:0.85rem;">📅 {data_o}</p><a href="{o.link}" target="_blank" style="display:inline-block; margin-top:10px; padding:10px 30px; background:{COR_VERDE}; color:#0E1117; border-radius:50px; text-decoration:none; font-size:0.8rem; font-weight:700;">SABER MAIS</a></div>', unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div class="card" style="border-left: 5px solid {COR_VERDE};">
+                        <small style="color:{COR_VERDE}; font-weight:700;">OPORTUNIDADE • {abrangencia_op.upper()}</small>
+                        <h3 style="margin:12px 0; font-size:1.3rem;">{o.title}</h3>
+                        <p style="color:#888; font-size:0.85rem;">📅 Detectado em: {data_o}</p>
+                        <a href="{o.link}" target="_blank" 
+                           style="display:inline-block; margin-top:10px; padding:10px 30px; background:{COR_VERDE}; color:#0E1117; border-radius:50px; text-decoration:none; font-size:0.8rem; font-weight:700;">
+                           SABER MAIS
+                        </a>
+                    </div>
+                """, unsafe_allow_html=True)
 
-# --- ABA DIAGNÓSTICO ---
+# --- ABA DIAGNÓSTICO STARTUP ---
 with tab_diagnostico:
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(f"<div style='text-align: center; margin-bottom: 30px;'><h2 style='color:{COR_VERDE}; font-weight:700;'>Censo Semestral de Inovação</h2><p style='color:#888;'>Diagnóstico de Startups — Vale dos Ipês</p></div>", unsafe_allow_html=True)
@@ -163,9 +220,9 @@ with tab_diagnostico:
     if c1 and c2 and c3:
         with st.form("form_diag"):
             n_st = st.text_input("Nome da Startup *")
-            v_st = st.selectbox("Vertical", ["AgriTech", "HealthTech", "GovTech", "EdTech", "FinTech", "Outro"], key="sel_diag_v")
-            s_diag = st.form_submit_button("ENVIAR DIAGNÓSTICO")
-            if s_diag and n_st: st.success("✔ Diagnóstico enviado!"); st.balloons()
+            v_st = st.selectbox("Vertical", ["AgriTech", "HealthTech", "GovTech", "EdTech", "FinTech", "Outro"], key="d_vert")
+            submit_diag = st.form_submit_button("ENVIAR DIAGNÓSTICO")
+            if submit_diag and n_st: st.success("✔ Diagnóstico enviado!"); st.balloons()
     else: st.info("⚠ Aceite os termos para liberar o formulário.")
 
 st.markdown("<br><br><p style='text-align:center; opacity:0.3; font-size:0.7rem;'>VALE DOS IPÊS • HUB DE INTELIGÊNCIA E OPORTUNIDADES</p>", unsafe_allow_html=True)
