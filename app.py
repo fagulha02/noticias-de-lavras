@@ -81,7 +81,9 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # 5. ESTRUTURA DE ABAS
-tab_noticias, tab_eventos, tab_diagnostico = st.tabs(["📰 NOTÍCIAS", "📅 EVENTOS", "🚀 DIAGNÓSTICO STARTUP"])
+tab_noticias, tab_eventos, tab_oportunidades, tab_diagnostico = st.tabs([
+    "📰 NOTÍCIAS", "📅 EVENTOS", "💡 OPORTUNIDADES", "🚀 DIAGNÓSTICO STARTUP"
+])
 
 # --- ABA NOTÍCIAS ---
 with tab_noticias:
@@ -100,7 +102,6 @@ with tab_noticias:
         with st.spinner("Sincronizando por data..."):
             noticias = buscar_dados(termos_map[topico_noticia])
             noticias_ord = sorted(noticias, key=lambda x: x.published_parsed, reverse=True)
-            
             for n in noticias_ord[:12]:
                 data = datetime(*n.published_parsed[:6]).strftime('%d/%m/%Y %H:%M')
                 st.markdown(f"""
@@ -128,7 +129,6 @@ with tab_eventos:
             termo_final = f"eventos {tema_ev if tema_ev != 'Todos os temas' else ''}"
             eventos = buscar_dados(termo_final, local_ev)
             eventos_ord = sorted(eventos, key=lambda x: x.published_parsed, reverse=True)
-            
             for e in eventos_ord[:12]:
                 data_e = datetime(*e.published_parsed[:6]).strftime('%d/%m/%Y')
                 st.markdown(f"""
@@ -139,6 +139,44 @@ with tab_eventos:
                         <a href="{e.link}" target="_blank" 
                            style="display:inline-block; margin-top:10px; padding:10px 30px; background:{COR_LARANJA}; color:white; border-radius:50px; text-decoration:none; font-size:0.8rem; font-weight:700;">
                            VER DETALHES
+                        </a>
+                    </div>
+                """, unsafe_allow_html=True)
+
+# --- NOVA ABA: OPORTUNIDADES ---
+with tab_oportunidades:
+    st.markdown("<br>", unsafe_allow_html=True)
+    _, col_mid_op, _ = st.columns([1, 2, 1])
+    with col_mid_op:
+        perfil_op = st.selectbox("Quem é você?", [
+            "Empresas Consolidadas", "Startups", "Empreendedores", "Estudantes"
+        ])
+        abrangencia_op = st.radio("Abrangência", ["Local (Lavras/MG)", "Nacional (Brasil)"], horizontal=True)
+        btn_op = st.button("MAPEAR OPORTUNIDADES", key="btn_op")
+
+    if btn_op:
+        # Lógica de mapeamento baseada no seu alinhamento de ideias
+        perfis_map = {
+            "Empresas Consolidadas": "inovação aberta open innovation parcerias tecnologias",
+            "Startups": "edital fomento rodada investimento startup aporte anjo fapemig",
+            "Empreendedores": "oportunidade mercado tendência franquia inovação nicho",
+            "Estudantes": "vaga estágio startup trainee inovação bolsa pesquisa ufla"
+        }
+        loc_op = "Lavras MG" if abrangencia_op == "Local (Lavras/MG)" else "Brasil"
+        
+        with st.spinner("Buscando oportunidades estratégicas..."):
+            ops = buscar_dados(perfis_map[perfil_op], loc_op)
+            ops_ord = sorted(ops, key=lambda x: x.published_parsed, reverse=True)
+            for o in ops_ord[:12]:
+                data_o = datetime(*o.published_parsed[:6]).strftime('%d/%m/%Y')
+                st.markdown(f"""
+                    <div class="card" style="border-left: 5px solid {COR_VERDE};">
+                        <small style="color:{COR_VERDE}; font-weight:700;">OPORTUNIDADE PARA {perfil_op.upper()}</small>
+                        <h3 style="margin:12px 0; font-size:1.3rem;">{o.title}</h3>
+                        <p style="color:#888; font-size:0.85rem;">📅 Detectado em: {data_o}</p>
+                        <a href="{o.link}" target="_blank" 
+                           style="display:inline-block; margin-top:10px; padding:10px 30px; background:{COR_VERDE}; color:#0E1117; border-radius:50px; text-decoration:none; font-size:0.8rem; font-weight:700;">
+                           SABER MAIS SOBRE A OPORTUNIDADE
                         </a>
                     </div>
                 """, unsafe_allow_html=True)
@@ -169,9 +207,7 @@ with tab_diagnostico:
             with col_f2:
                 vertical_st = st.selectbox("Vertical de atuação", ["AgriTech", "HealthTech", "GovTech", "EdTech", "FinTech", "Outro"])
                 fase_st = st.select_slider("Fase do negócio", options=["Ideação", "Validação", "Operação", "Tração", "Escala"])
-            
             resumo_st = st.text_area("Resumo da Solução (Dor e Proposta de Valor)")
-
             st.markdown(f"<h4 style='color:{COR_LARANJA};'>👥 Sócios & Fundadores</h4>", unsafe_allow_html=True)
             col_s1, col_s2 = st.columns(2)
             with col_s1:
@@ -180,20 +216,16 @@ with tab_diagnostico:
             with col_s2:
                 socio_t = st.text_input("Telefone (WhatsApp) *")
                 socio_l = st.text_input("LinkedIn (Perfil)")
-
             st.markdown(f"<h4 style='color:{COR_VERDE};'>📈 Tração & Lavras</h4>", unsafe_allow_html=True)
             col_t1, col_t2 = st.columns(2)
             with col_t1:
                 fat_st = st.selectbox("Faturamento Bruto Anual", ["Ainda não faturamos", "Até R$ 50k", "R$ 50k a R$ 250k", "Acima de R$ 250k"])
             with col_t2:
                 recursos_st = st.radio("Possui recursos para os próximos 12 meses?", ["Sim", "Sim, com risco", "Não"])
-            
             projetos_lvrs = st.multiselect("Projetos LVRS+ com potencial de interação:", 
                                          ["Cluster AgroFoodTech", "Hub IpêTech", "Blue Zone Lavras", "Festival do Futuro", "Circuito Vale dos Ipês"])
-
             st.markdown("<br>", unsafe_allow_html=True)
             submit_diag = st.form_submit_button("ENVIAR DIAGNÓSTICO")
-
             if submit_diag:
                 if nome_st and socio_e:
                     st.success("✔ Diagnóstico enviado com sucesso! Sua startup agora está no mapa do Vale dos Ipês.")
@@ -203,4 +235,4 @@ with tab_diagnostico:
     else:
         st.info("⚠ Aceite os termos de privacidade acima para liberar o formulário.")
 
-st.markdown("<br><br><p style='text-align:center; opacity:0.3; font-size:0.7rem;'>VALE DOS IPÊS • SISTEMA DE INTELIGÊNCIA CRONOLÓGICA</p>", unsafe_allow_html=True)
+st.markdown("<br><br><p style='text-align:center; opacity:0.3; font-size:0.7rem;'>VALE DOS IPÊS • HUB DE INTELIGÊNCIA E OPORTUNIDADES</p>", unsafe_allow_html=True)
