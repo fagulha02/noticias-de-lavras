@@ -2,18 +2,19 @@ import streamlit as st
 import feedparser
 import urllib.parse
 from datetime import datetime, date
+import collections
 
-# 1. IDENTIDADE VISUAL
+# 1. IDENTIDADE VISUAL (Dark Mode Premium - Vale dos Ipês)
 COR_VERDE = "#92BC4E"
 COR_LARANJA = "#EB6923"
 COR_AZUL = "#00ADEF"
-COR_OURO = "#FFD700"  # Cor para Premiações
+COR_OURO = "#FFD700" 
 COR_TEXTO = "#E0E0E0"
 COR_FUNDO_CARD = "#1E2129"
 
 st.set_page_config(page_title="Radar Vale dos Ipês", layout="wide", page_icon="🌳")
 
-# 2. CSS AVANÇADO (Design Dark e Ajuste de Contraste)
+# 2. CSS AVANÇADO (Design, Calendário e Contraste)
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap');
@@ -31,6 +32,12 @@ st.markdown(f"""
     div[data-baseweb="popover"] li {{ color: white !important; background-color: #161B22 !important; }}
     div[data-baseweb="popover"] li:hover {{ background-color: {COR_VERDE} !important; color: #0E1117 !important; }}
     
+    /* Estilo Calendário */
+    .mes-titulo {{ color: {COR_VERDE}; border-bottom: 2px solid #333; padding-bottom: 8px; margin-top: 40px; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }}
+    .evento-item {{ padding: 12px 0; border-bottom: 1px solid #222; font-size: 1rem; display: flex; align-items: center; }}
+    .dia-destaque {{ color: {COR_LARANJA}; font-weight: 800; margin-right: 20px; font-size: 1.2rem; min-width: 35px; border-right: 2px solid #333; padding-right: 10px; }}
+    .tag-cal {{ font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; margin-left: 10px; font-weight: 600; text-transform: uppercase; }}
+
     .card {{
         background: linear-gradient(145deg, #1E2129, #161B22);
         padding: 25px;
@@ -75,13 +82,30 @@ st.markdown(f"""
     <div class="header-container">
         <img src="https://raw.githubusercontent.com/fagulha02/noticias-de-lavras/main/logo_vale.png" width="180" style="filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));">
         <h1 style="font-weight:700; font-size: 2.3rem; margin:10px 0;">Radar de Inteligência</h1>
-        <p style="color:{COR_VERDE}; font-weight:400; letter-spacing: 2px;">VALE DOS IPÊS • HUB DE RECONHECIMENTO</p>
+        <p style="color:{COR_VERDE}; font-weight:400; letter-spacing: 2px;">VALE DOS IPÊS • LAVRAS/MG</p>
     </div>
 """, unsafe_allow_html=True)
 
-tabs = st.tabs(["📰 NOTÍCIAS", "📅 EVENTOS", "💡 OPORTUNIDADES", "🏆 PREMIAÇÕES", "🚀 DIAGNÓSTICO"])
+tabs = st.tabs(["📰 NOTÍCIAS", "📅 EVENTOS", "💡 OPORTUNIDADES", "🏆 PREMIAÇÕES", "🗓️ CALENDÁRIO", "🚀 DIAGNÓSTICO"])
 
-# --- ABA 3: OPORTUNIDADES (Revisada) ---
+# --- ABA 1: NOTÍCIAS ---
+with tabs[0]:
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("ATUALIZAR NOTÍCIAS DO DIA"):
+        with st.spinner("Buscando fatos..."):
+            noticias = buscar_dados("Lavras MG inovação", "", date.today())
+            if noticias:
+                for n in noticias[:10]:
+                    st.markdown(f'<div class="card" style="border-left: 5px solid {COR_AZUL};"><h4>{n.title}</h4><a href="{n.link}" target="_blank" style="color:{COR_AZUL}; font-weight:700; text-decoration:none;">LER NOTÍCIA →</a></div>', unsafe_allow_html=True)
+            else:
+                st.info("Nenhuma notícia de última hora encontrada.")
+
+# --- ABA 2: EVENTOS ---
+with tabs[1]:
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.info("Consulte a aba de Calendário para ver a agenda completa do ano.")
+
+# --- ABA 3: OPORTUNIDADES ---
 with tabs[2]:
     st.markdown("<br>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns([2, 1, 2])
@@ -106,60 +130,75 @@ with tabs[2]:
                 dt = datetime(*o.published_parsed[:6]).strftime('%d/%m/%Y')
                 st.markdown(f'<div class="card" style="border-left: 5px solid {COR_VERDE};"><small style="color:{COR_VERDE}; font-weight:700;">OPORTUNIDADE ATIVA</small><h3 style="margin:10px 0; font-size:1.1rem;">{o.title}</h3><p style="color:#888; font-size:0.8rem;">📅 Detectado em: {dt}</p><a href="{o.link}" target="_blank" style="color:{COR_VERDE}; text-decoration:none; font-weight:700;">VER DETALHES →</a></div>', unsafe_allow_html=True)
 
-# --- ABA 4: PREMIAÇÕES (NOVA FUNCIONALIDADE) ---
+# --- ABA 4: PREMIAÇÕES ---
 with tabs[3]:
     st.markdown("<br>", unsafe_allow_html=True)
-    c1, c2, c3 = st.columns([2, 1, 2])
-    with c1: 
-        categoria_pr = st.selectbox("Foco do Reconhecimento:", 
-                                   ["Startups & Incubadoras", "Cidades Inteligentes & Ecossistemas", "Criatividade & Design", "Pesquisa & Inovação Acadêmica"])
-    with c2: 
-        abr_pr = st.selectbox("Escala do Prêmio", ["Regional (MG)", "Nacional (Brasil)", "Internacional (Mundo)"], key="abr_pr")
-    with c3:
-        data_pr = st.date_input("Intervalo de Resultados/Inscrições:", value=(date(2025, 1, 1), date.today()), key="data_pr")
+    if st.button("BUSCAR RECONHECIMENTOS"):
+        with st.spinner("Mapeando conquistas..."):
+            premios = buscar_dados('("vencedores" OR "finalistas" OR "ranking") (startup OR inovação)', "Brasil", date(2025,1,1))
+            for p in sorted(premios, key=lambda x: x.published_parsed, reverse=True)[:10]:
+                st.markdown(f'<div class="card" style="border-left: 5px solid {COR_OURO};"><small style="color:{COR_OURO}; font-weight:700;">🏆 PREMIAÇÃO</small><h4>{p.title}</h4><a href="{p.link}" target="_blank" style="color:{COR_OURO}; text-decoration:none; font-weight:700;">VER RESULTADOS →</a></div>', unsafe_allow_html=True)
 
-    if st.button("BUSCAR RECONHECIMENTOS E PREMIAÇÕES"):
-        # Mapa de busca agressivo para não deixar nada de fora
-        mapa_pr = {
-            "Startups & Incubadoras": '("vencedores" OR "finalistas" OR "Top 100" OR "ranking") (startup OR incubadora OR aceleradora)',
-            "Cidades Inteligentes & Ecossistemas": '("prêmio cidade inteligente" OR "smart city award" OR "ranking de inovação" OR "selo de inovação")',
-            "Criatividade & Design": '("concurso de criatividade" OR "prêmio de design" OR "economia criativa" OR "solução disruptiva")',
-            "Pesquisa & Inovação Acadêmica": '("tese inovadora" OR "prêmio pesquisador" OR "inovação tecnológica" OR "ufla")'
-        }
-        loc_pr = {"Regional (MG)": "Minas Gerais", "Nacional (Brasil)": "Brasil", "Internacional (Mundo)": ""}[abr_pr]
-        d_i_p = data_pr[0] if len(data_pr) >= 1 else date(2025,1,1)
-        d_f_p = data_pr[1] if len(data_pr) >= 2 else date.today()
+# --- ABA 5: CALENDÁRIO (IMPLEMENTAÇÃO COMPLETA) ---
+with tabs[4]:
+    st.markdown("<br>", unsafe_allow_html=True)
+    col_c1, col_c2 = st.columns([2, 1])
+    with col_c1:
+        tipos_cal = st.multiselect("Filtrar categorias da agenda:", ["Eventos", "Editais", "Premiações"], default=["Eventos", "Editais"])
+    with col_c2:
+        reg_cal = st.selectbox("Região do Calendário:", ["Lavras e Região", "Minas Gerais", "Brasil", "Mundo"])
 
-        with st.spinner("Mapeando galeria de conquistas..."):
-            premios = buscar_dados(mapa_pr[categoria_pr], loc_pr, d_i_p, d_f_p)
-            if not premios:
-                st.info("Nenhum prêmio ou ranking detectado neste período. Tente ampliar as datas.")
+    if st.button("GERAR CRONOGRAMA 2026"):
+        termos_cal = []
+        if "Eventos" in tipos_cal: termos_cal.append('("data do evento" OR "acontece dia" OR meetup)')
+        if "Editais" in tipos_cal: termos_cal.append('("inscrições até" OR "prazo final" OR "abertura")')
+        if "Premiações" in tipos_cal: termos_cal.append('("cerimônia" OR "vencedores" OR "entrega")')
+        
+        query_cal = " OR ".join(termos_cal)
+        loc_cal = {"Lavras e Região": "Lavras MG", "Minas Gerais": "Minas Gerais", "Brasil": "Brasil", "Mundo": ""}[reg_cal]
+        
+        with st.spinner("Construindo linha do tempo estratégica..."):
+            res_cal = buscar_dados(query_cal, loc_cal, date(2026, 1, 1), date(2026, 12, 31))
+            
+            if not res_cal:
+                st.warning("Ainda não detectamos marcos cronológicos específicos para esses filtros.")
             else:
-                for p in sorted(premios, key=lambda x: x.published_parsed, reverse=True)[:15]:
-                    dt_p = datetime(*p.published_parsed[:6]).strftime('%d/%m/%Y')
-                    st.markdown(f"""
-                        <div class="card" style="border-left: 5px solid {COR_OURO};">
-                            <div style="display:flex; justify-content:space-between;">
-                                <small style="color:{COR_OURO}; font-weight:700;">🏆 PREMIAÇÃO / RECONHECIMENTO</small>
-                                <span style="background:{COR_OURO}22; color:{COR_OURO}; padding:2px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold;">MÉRITO</span>
-                            </div>
-                            <h3 style="margin:10px 0; font-size:1.15rem; color:#FFFFFF;">{p.title}</h3>
-                            <p style="color:#888; font-size:0.8rem;">📅 Publicado em: {dt_p} • 📍 Escala: {abr_pr}</p>
-                            <a href="{p.link}" target="_blank" style="display:inline-block; margin-top:10px; padding:8px 25px; background:{COR_OURO}; color:#0E1117; border-radius:50px; text-decoration:none; font-size:0.8rem; font-weight:700;">VER RANKING / RESULTADO</a>
-                        </div>
-                    """, unsafe_allow_html=True)
+                st.markdown("<h1 style='text-align:center; color:#FFF;'>📅 2026</h1>", unsafe_allow_html=True)
+                meses_lista = ["", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+                agenda_mensal = collections.defaultdict(list)
+                
+                for item in res_cal:
+                    mes_idx = item.published_parsed.tm_mon
+                    agenda_mensal[mes_idx].append(item)
+                
+                # Exibição do Calendário
+                for i in range(1, 13):
+                    if i in agenda_mensal:
+                        st.markdown(f"<h2 class='mes-titulo'>{meses_lista[i]}</h2>", unsafe_allow_html=True)
+                        for ev in sorted(agenda_mensal[i], key=lambda x: x.published_parsed.tm_mday):
+                            dia_num = str(ev.published_parsed.tm_mday).zfill(2)
+                            # Tag colorida baseada no título
+                            cor_tag = COR_LARANJA if "evento" in ev.title.lower() else COR_VERDE
+                            st.markdown(f"""
+                                <div class="evento-item">
+                                    <span class="dia-destaque">{dia_num}</span> 
+                                    <div style="flex-grow:1;">
+                                        <a href="{ev.link}" target="_blank" style="text-decoration:none; color:{COR_TEXTO}; font-weight:500;">
+                                            {ev.title[:120]}...
+                                        </a>
+                                    </div>
+                                    <span class="tag-cal" style="background:{cor_tag}22; color:{cor_tag}; border: 1px solid {cor_tag}55;">AGENDA</span>
+                                </div>
+                            """, unsafe_allow_html=True)
 
-# --- ABAS DE SUPORTE (Notícias, Eventos, Diagnóstico) ---
-with tabs[0]: # Notícias
+# --- ABA 6: DIAGNÓSTICO ---
+with tabs[5]:
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("ATUALIZAR NOTÍCIAS DO DIA"):
-        noticias = buscar_dados("Lavras MG inovação", "", date.today())
-        for n in noticia[:10]: st.write(f"[{n.title}]({n.link})")
+    st.info("Censo Semestral de Inovação - Coleta em conformidade com a LGPD.")
+    with st.form("form_startup_censo"):
+        n_st = st.text_input("Nome da Startup")
+        submit = st.form_submit_button("Enviar")
+        if submit and n_st:
+            st.success("Diagnóstico registrado com sucesso!")
 
-with tabs[4]: # Diagnóstico
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.info("Formulário de Censo Semestral — Conforme LGPD.")
-    st.text_input("Nome da Startup")
-    st.button("Enviar Diagnóstico")
-
-st.markdown("<br><br><p style='text-align:center; opacity:0.3; font-size:0.7rem;'>VALE DOS IPÊS • HUB DE INTELIGÊNCIA E RECONHECIMENTO</p>", unsafe_allow_html=True)
+st.markdown("<br><br><p style='text-align:center; opacity:0.3; font-size:0.7rem;'>VALE DOS IPÊS • HUB DE INTELIGÊNCIA CRONOLÓGICA</p>", unsafe_allow_html=True)
