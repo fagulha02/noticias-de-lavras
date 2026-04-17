@@ -7,12 +7,13 @@ from datetime import datetime, date
 COR_VERDE = "#92BC4E"
 COR_LARANJA = "#EB6923"
 COR_AZUL = "#00ADEF"
+COR_OURO = "#FFD700"  # Cor para Premiações
 COR_TEXTO = "#E0E0E0"
 COR_FUNDO_CARD = "#1E2129"
 
 st.set_page_config(page_title="Radar Vale dos Ipês", layout="wide", page_icon="🌳")
 
-# 2. CSS AVANÇADO (Design Dark e Ajuste de Componentes)
+# 2. CSS AVANÇADO (Design Dark e Ajuste de Contraste)
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap');
@@ -23,9 +24,12 @@ st.markdown(f"""
     /* Títulos das Abas */
     button[data-baseweb="tab"] {{ font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 1px !important; }}
 
-    /* Selectboxes e Calendário */
-    div[data-baseweb="select"] > div, div[data-baseweb="popover"] ul {{ background-color: #161B22 !important; }}
+    /* Estilização de Menus (Selectbox) */
+    div[data-baseweb="select"] > div {{ background-color: #161B22 !important; color: white !important; }}
     div[data-baseweb="select"] span {{ color: white !important; }}
+    div[data-baseweb="popover"] ul {{ background-color: #161B22 !important; }}
+    div[data-baseweb="popover"] li {{ color: white !important; background-color: #161B22 !important; }}
+    div[data-baseweb="popover"] li:hover {{ background-color: {COR_VERDE} !important; color: #0E1117 !important; }}
     
     .card {{
         background: linear-gradient(145deg, #1E2129, #161B22);
@@ -35,7 +39,7 @@ st.markdown(f"""
         border: 1px solid #333;
         transition: all 0.3s ease;
     }}
-    .card:hover {{ border-color: {COR_VERDE}; transform: translateY(-3px); }}
+    .card:hover {{ border-color: {COR_VERDE}; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }}
 
     div.stButton > button {{
         background-color: transparent;
@@ -56,7 +60,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # 3. MOTOR DE BUSCA OTIMIZADO
-def buscar_dados_com_periodo(termo, local="", d_inicio=None, d_fim=None):
+def buscar_dados(termo, local="", d_inicio=None, d_fim=None):
     query = f"{termo} {local}".strip()
     if d_inicio: query += f" after:{d_inicio.strftime('%Y-%m-%d')}"
     if d_fim: query += f" before:{d_fim.strftime('%Y-%m-%d')}"
@@ -71,72 +75,91 @@ st.markdown(f"""
     <div class="header-container">
         <img src="https://raw.githubusercontent.com/fagulha02/noticias-de-lavras/main/logo_vale.png" width="180" style="filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));">
         <h1 style="font-weight:700; font-size: 2.3rem; margin:10px 0;">Radar de Inteligência</h1>
-        <p style="color:{COR_VERDE}; font-weight:400; letter-spacing: 2px;">VALE DOS IPÊS • HUB DE OPORTUNIDADES</p>
+        <p style="color:{COR_VERDE}; font-weight:400; letter-spacing: 2px;">VALE DOS IPÊS • HUB DE RECONHECIMENTO</p>
     </div>
 """, unsafe_allow_html=True)
 
-tabs = st.tabs(["📰 NOTÍCIAS", "📅 EVENTOS", "💡 OPORTUNIDADES", "🚀 DIAGNÓSTICO"])
+tabs = st.tabs(["📰 NOTÍCIAS", "📅 EVENTOS", "💡 OPORTUNIDADES", "🏆 PREMIAÇÕES", "🚀 DIAGNÓSTICO"])
 
-# --- ABA OPORTUNIDADES ---
+# --- ABA 3: OPORTUNIDADES (Revisada) ---
 with tabs[2]:
     st.markdown("<br>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns([2, 1, 2])
-    
-    with c1:
-        perfil = st.selectbox("Busco oportunidades para:", ["Empresas Consolidadas", "Startups", "Empreendedores", "Estudantes"])
-    with c2:
-        abr = st.selectbox("Abrangência", ["Lavras e Região", "Minas Gerais", "Brasil", "Mundo"], key="abr_op")
-    with c3:
-        datas_sel = st.date_input("Intervalo de Publicação:", value=(date(2026, 1, 1), date.today()))
+    with c1: perfil_op = st.selectbox("Busco oportunidades para:", ["Empresas Consolidadas", "Startups", "Empreendedores", "Estudantes"])
+    with c2: abr_op = st.selectbox("Abrangência", ["Lavras e Região", "Minas Gerais", "Brasil", "Mundo"], key="abr_op")
+    with c3: data_op = st.date_input("Intervalo de Inscrição:", value=(date(2026, 1, 1), date.today()), key="data_op")
 
-    if st.button("MAPEAR OPORTUNIDADES NO PERÍODO"):
-        mapa_t = {
-            "Empresas Consolidadas": '(chamada "inovação aberta" OR "open innovation" OR "desafio de inovação" OR "edital finep")',
-            "Startups": '("inscrições abertas" OR edital OR chamamento) (startup OR aceleração OR aporte OR "investimento anjo")',
-            "Empreendedores": '("oportunidade de negócio" OR "edital sebrae" OR "franquia inovadora" OR "crédito inovação")',
-            "Estudantes": '("vaga estágio" OR "trainee inovação" OR hackathon OR "bolsa pesquisa" OR "vaga tecnologia")'
+    if st.button("MAPEAR OPORTUNIDADES", key="btn_op"):
+        mapa_op = {
+            "Empresas Consolidadas": '(chamada "inovação aberta" OR "open innovation" OR "desafio")',
+            "Startups": '("inscrições abertas" OR edital) (startup OR aceleração OR aporte)',
+            "Empreendedores": '("oportunidade de negócio" OR "edital sebrae" OR "crédito inovação")',
+            "Estudantes": '("vaga estágio" OR hackathon OR "bolsa pesquisa" OR trainee)'
         }
-        loc_q = {"Lavras e Região": "Lavras MG", "Minas Gerais": "Minas Gerais", "Brasil": "Brasil", "Mundo": ""}[abr]
+        loc_op = {"Lavras e Região": "Lavras MG", "Minas Gerais": "Minas Gerais", "Brasil": "Brasil", "Mundo": ""}[abr_op]
+        d_i = data_op[0] if len(data_op) >= 1 else date(2026,1,1)
+        d_f = data_op[1] if len(data_op) >= 2 else date.today()
         
-        # Correção do Bug de Seleção Única de Data
-        d_i = datas_sel[0] if isinstance(datas_sel, tuple) and len(datas_sel) >= 1 else datas_sel
-        d_f = datas_sel[1] if isinstance(datas_sel, tuple) and len(datas_sel) >= 2 else date.today()
+        with st.spinner("Escaneando editais..."):
+            res = buscar_dados(mapa_op[perfil_op], loc_op, d_i, d_f)
+            for o in sorted(res, key=lambda x: x.published_parsed, reverse=True)[:15]:
+                dt = datetime(*o.published_parsed[:6]).strftime('%d/%m/%Y')
+                st.markdown(f'<div class="card" style="border-left: 5px solid {COR_VERDE};"><small style="color:{COR_VERDE}; font-weight:700;">OPORTUNIDADE ATIVA</small><h3 style="margin:10px 0; font-size:1.1rem;">{o.title}</h3><p style="color:#888; font-size:0.8rem;">📅 Detectado em: {dt}</p><a href="{o.link}" target="_blank" style="color:{COR_VERDE}; text-decoration:none; font-weight:700;">VER DETALHES →</a></div>', unsafe_allow_html=True)
 
-        with st.spinner("Escaneando inteligência de mercado..."):
-            ops = buscar_dados_com_periodo(mapa_t[perfil], loc_q, d_i, d_f)
-            if not ops:
-                st.info("Nenhuma oportunidade ativa neste período. Tente ampliar as datas.")
+# --- ABA 4: PREMIAÇÕES (NOVA FUNCIONALIDADE) ---
+with tabs[3]:
+    st.markdown("<br>", unsafe_allow_html=True)
+    c1, c2, c3 = st.columns([2, 1, 2])
+    with c1: 
+        categoria_pr = st.selectbox("Foco do Reconhecimento:", 
+                                   ["Startups & Incubadoras", "Cidades Inteligentes & Ecossistemas", "Criatividade & Design", "Pesquisa & Inovação Acadêmica"])
+    with c2: 
+        abr_pr = st.selectbox("Escala do Prêmio", ["Regional (MG)", "Nacional (Brasil)", "Internacional (Mundo)"], key="abr_pr")
+    with c3:
+        data_pr = st.date_input("Intervalo de Resultados/Inscrições:", value=(date(2025, 1, 1), date.today()), key="data_pr")
+
+    if st.button("BUSCAR RECONHECIMENTOS E PREMIAÇÕES"):
+        # Mapa de busca agressivo para não deixar nada de fora
+        mapa_pr = {
+            "Startups & Incubadoras": '("vencedores" OR "finalistas" OR "Top 100" OR "ranking") (startup OR incubadora OR aceleradora)',
+            "Cidades Inteligentes & Ecossistemas": '("prêmio cidade inteligente" OR "smart city award" OR "ranking de inovação" OR "selo de inovação")',
+            "Criatividade & Design": '("concurso de criatividade" OR "prêmio de design" OR "economia criativa" OR "solução disruptiva")',
+            "Pesquisa & Inovação Acadêmica": '("tese inovadora" OR "prêmio pesquisador" OR "inovação tecnológica" OR "ufla")'
+        }
+        loc_pr = {"Regional (MG)": "Minas Gerais", "Nacional (Brasil)": "Brasil", "Internacional (Mundo)": ""}[abr_pr]
+        d_i_p = data_pr[0] if len(data_pr) >= 1 else date(2025,1,1)
+        d_f_p = data_pr[1] if len(data_pr) >= 2 else date.today()
+
+        with st.spinner("Mapeando galeria de conquistas..."):
+            premios = buscar_dados(mapa_pr[categoria_pr], loc_pr, d_i_p, d_f_p)
+            if not premios:
+                st.info("Nenhum prêmio ou ranking detectado neste período. Tente ampliar as datas.")
             else:
-                for o in sorted(ops, key=lambda x: x.published_parsed, reverse=True)[:20]:
-                    dt_o = datetime(*o.published_parsed[:6]).strftime('%d/%m/%Y')
+                for p in sorted(premios, key=lambda x: x.published_parsed, reverse=True)[:15]:
+                    dt_p = datetime(*p.published_parsed[:6]).strftime('%d/%m/%Y')
                     st.markdown(f"""
-                        <div class="card" style="border-left: 5px solid {COR_VERDE};">
-                            <div style="display:flex; justify-content:space-between;"><small style="color:{COR_VERDE}; font-weight:700;">{perfil.upper()}</small><span style="background:{COR_VERDE}33; color:{COR_VERDE}; padding:2px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold;">ATIVO</span></div>
-                            <h3 style="margin:10px 0; font-size:1.1rem;">{o.title}</h3>
-                            <p style="color:#888; font-size:0.8rem;">📅 Detectado em: {dt_o} • 📍 {abr}</p>
-                            <a href="{o.link}" target="_blank" style="color:{COR_VERDE}; text-decoration:none; font-weight:700; font-size:0.8rem;">ACESSAR DETALHES →</a>
+                        <div class="card" style="border-left: 5px solid {COR_OURO};">
+                            <div style="display:flex; justify-content:space-between;">
+                                <small style="color:{COR_OURO}; font-weight:700;">🏆 PREMIAÇÃO / RECONHECIMENTO</small>
+                                <span style="background:{COR_OURO}22; color:{COR_OURO}; padding:2px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold;">MÉRITO</span>
+                            </div>
+                            <h3 style="margin:10px 0; font-size:1.15rem; color:#FFFFFF;">{p.title}</h3>
+                            <p style="color:#888; font-size:0.8rem;">📅 Publicado em: {dt_p} • 📍 Escala: {abr_pr}</p>
+                            <a href="{p.link}" target="_blank" style="display:inline-block; margin-top:10px; padding:8px 25px; background:{COR_OURO}; color:#0E1117; border-radius:50px; text-decoration:none; font-size:0.8rem; font-weight:700;">VER RANKING / RESULTADO</a>
                         </div>
                     """, unsafe_allow_html=True)
 
-# --- OUTRAS ABAS (Revisadas) ---
+# --- ABAS DE SUPORTE (Notícias, Eventos, Diagnóstico) ---
 with tabs[0]: # Notícias
     st.markdown("<br>", unsafe_allow_html=True)
-    c_n, c_b = st.columns([3, 1])
-    with c_n: t_n = st.selectbox("Tema", ["Geral", "Economia", "Inovação", "UFLA", "Rankings"])
-    with c_b: 
-        st.markdown("<div style='margin-top:28px;'></div>", unsafe_allow_html=True)
-        if st.button("ATUALIZAR NOTÍCIAS"):
-            noticias = buscar_dados_com_periodo(f"{t_n} Lavras MG", "", date(2026, 1, 1), date.today())
-            for n in sorted(noticias, key=lambda x: x.published_parsed, reverse=True)[:10]:
-                st.markdown(f'<div class="card" style="border-left: 5px solid {COR_AZUL};"><h4>{n.title}</h4><a href="{n.link}" target="_blank" style="color:{COR_AZUL}; text-decoration:none; font-weight:700;">Ler mais →</a></div>', unsafe_allow_html=True)
+    if st.button("ATUALIZAR NOTÍCIAS DO DIA"):
+        noticias = buscar_dados("Lavras MG inovação", "", date.today())
+        for n in noticia[:10]: st.write(f"[{n.title}]({n.link})")
 
-with tabs[3]: # Diagnóstico
+with tabs[4]: # Diagnóstico
     st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown(f"<div style='text-align:center;'><h2 style='color:{COR_VERDE};'>Censo Semestral de Inovação</h2></div>", unsafe_allow_html=True)
-    with st.expander("Privacidade LGPD"): aceito = st.checkbox("Li e aceito os termos.")
-    if aceito:
-        with st.form("diag"):
-            st.text_input("Nome da Startup")
-            if st.form_submit_button("ENVIAR"): st.success("Enviado com sucesso!"); st.balloons()
+    st.info("Formulário de Censo Semestral — Conforme LGPD.")
+    st.text_input("Nome da Startup")
+    st.button("Enviar Diagnóstico")
 
-st.markdown("<br><br><p style='text-align:center; opacity:0.3; font-size:0.7rem;'>VALE DOS IPÊS • HUB DE INTELIGÊNCIA CRONOLÓGICA</p>", unsafe_allow_html=True)
+st.markdown("<br><br><p style='text-align:center; opacity:0.3; font-size:0.7rem;'>VALE DOS IPÊS • HUB DE INTELIGÊNCIA E RECONHECIMENTO</p>", unsafe_allow_html=True)
