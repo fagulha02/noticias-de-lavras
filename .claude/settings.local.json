@@ -7,7 +7,20 @@
       "mcp__claude_ai_Notion__notion-create-pages",
       "Bash(pip install:*)",
       "Bash(python:*)",
-      "Bash(where tesseract:*)"
+      "Bash(where tesseract:*)",
+      "mcp__claude_ai_Notion__notion-search",
+      "mcp__claude_ai_Notion__notion-update-data-source",
+      "mcp__claude_ai_Notion__notion-create-database",
+      "Bash(taskkill //F //IM aces.exe)",
+      "Bash(taskkill //F //IM aces_BE.exe)",
+      "Bash(taskkill //F //IM beac_wt_mlauncher.exe)",
+      "Bash(taskkill //F //IM launcher.exe)",
+      "Bash(taskkill //IM steam.exe)",
+      "Bash(taskkill //F //IM steamwebhelper.exe)",
+      "Bash(taskkill //F //IM steamservice.exe)",
+      "Bash(powercfg //setactive 381b4222-f694-41f0-9685-ff5bb260df2e)",
+      "Bash(powercfg //getactivescheme)",
+      "Read(//c/Users/ramon/Desktop/Desenvolvimento/**)"
     ]
   }
 }
