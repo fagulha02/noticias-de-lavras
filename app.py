@@ -115,7 +115,7 @@ with st.expander("📄 LEIA O MANIFESTO DO CENSO SEMESTRAL - VALE DOS IPÊS", ex
     """, unsafe_allow_html=True)
 
     # FORMULÁRIO COMPLETO
-    with st.form("censo_completo"):
+with st.form("censo_completo"):
         st.markdown("### 1. Identificação da Startup")
         c1, c2 = st.columns(2)
         with c1:
