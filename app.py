@@ -99,19 +99,21 @@ with tabs[5]:
     st.markdown("## Diagnóstico e Monitoramento de Startups do Ecossistema Vale dos Ipês")
     
     # TEXTO RETRÁTIL DO CENSO (Baseado na sua imagem)
-    with st.expander("📄 LEIA O MANIFESTO DO CENSO SEMESTRAL - VALE DOS IPÊS", expanded=False):
-        st.markdown(f"""
-        <div style="color: {COR_TEXTO}; line-height: 1.8; text-align: justify; font-size: 0.95rem; background-color: #1A1E24; padding: 25px; border-radius: 10px; border: 1px solid #333;">
-            <strong>Prezado(a) Empreendedor(a),</strong><br><br>
-            É com satisfação que convidamos a sua startup a integrar o <strong>Censo Semestral Vale dos Ipês</strong>, uma iniciativa estratégica da Superintendência de Inovação e parceria com os ambientes de inovação do ecossistema, para consolidar Lavras como a <strong>Capital do Futuro do Alimento</strong>.<br><br>
-            Este diagnóstico é o instrumento fundamental para que possamos compreender a maturidade do nosso ecossistema e, a partir de dados reais, formular políticas públicas e ações de fomento que atendam com precisão às necessidades de quem empreende no nosso território.<br><br>
-            A sua participação, atualizada a cada seis meses, permite que o <strong>LVRS+ (Pacto pela Inovação de Lavras)</strong> atue de forma personalizada, oferecendo suporte direto através dos nossos ambientes de inovação, os 12 Projetos Prioritários, programas de incentivo fiscal e conexões com investidores.<br><br>
-            Mais do que um levantamento estatístico, este censo visa monitorar o peso da tecnologia, do agrofoodtech e outros setores importantes no PIB de Lavras, garantindo que o seu negócio ganhe a projeção nacional e internacional que merece.<br><br>
-            Pela densidade das informações solicitadas, o preenchimento pode levar entre 50 a 60 minutos, mas o impacto gerado para o fortalecimento do seu negócio e da nossa cidade será duradouro. Contamos com você para construirmos juntos a Lavras do amanhã.<br><br>
-            <strong>Vale dos Ipês - Onde a inovação encontra o futuro.</strong>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown("## Diagnóstico e Monitoramento de Startups do Ecossistema de Inovação Vale dos Ipês")
 
+# Texto Institucional Completo e Retrátil
+with st.expander("📄 LEIA O MANIFESTO DO CENSO SEMESTRAL - VALE DOS IPÊS", expanded=False):
+    st.markdown(f"""
+    <div style="color: {COR_TEXTO}; line-height: 1.8; text-align: justify; font-size: 0.95rem; background-color: #1A1E24; padding: 25px; border-radius: 10px; border: 1px solid #333;">
+        <strong>Prezado(a) Empreendedor(a),</strong><br><br>
+        É com satisfação que convidamos a sua startup a integrar o <strong>Censo Semestral Vale dos Ipês</strong>, uma iniciativa estratégica da Superintendência de Inovação e parceria com os ambientes de inovação do ecossistema, para consolidar Lavras como a <strong>Capital do Futuro do Alimento</strong>.<br><br>
+        Este diagnóstico é o instrumento fundamental para que possamos compreender a maturidade do nosso ecossistema e, a partir de dados reais, formular políticas públicas e ações de fomento que atendam com precisão às necessidades de quem empreende no nosso território.<br><br>
+        A sua participação, atualizada a cada seis meses, permite que o <strong>LVRS+ (Pacto pela Inovação de Lavras)</strong> atue de forma personalizada, oferecendo suporte direto através dos nossos ambientes de inovação, os 12 Projetos Prioritários, programas de incentivo fiscal e conexões com investidores.<br><br>
+        Mais do que um levantamento estatístico, este censo visa monitorar o peso da tecnologia, do agrofoodtech e outros setores importantes no PIB de Lavras, garantindo que o seu negócio ganhe a projeção nacional e internacional que merece.<br><br>
+        Pela densidade das informações solicitadas, que abrangem desde a governança e faturamento até o impacto social e tecnológico, o preenchimento pode levar entre <strong>50 a 60 minutos</strong>, mas o impacto gerado para o fortalecimento do seu negócio e da nossa cidade será duradouro. Contamos com você para construirmos juntos a Lavras do amanhã.<br><br>
+        <strong>Vale dos Ipês - Onde a inovação encontra o futuro.</strong>
+    </div>
+    """, unsafe_allow_html=True)
     # FORMULÁRIO COMPLETO
     with st.form("censo_completo"):
         st.markdown("### 1. Identificação da Startup")
