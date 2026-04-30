@@ -100,17 +100,19 @@ with tabs[5]:
     
     # TEXTO RETRÁTIL DO CENSO (Baseado na sua imagem)
     with st.expander("📄 LEIA O MANIFESTO DO CENSO SEMESTRAL - VALE DOS IPÊS", expanded=False):
-        st.markdown(f"""
-        <div style="color: {COR_TEXTO}; line-height: 1.8; text-align: justify; font-size: 0.95rem; background-color: #1A1E24; padding: 25px; border-radius: 10px; border: 1px solid #333;">
-            <strong>Prezado(a) Empreendedor(a),</strong><br><br>
-            É com satisfação que convidamos a sua startup a integrar o <strong>Censo Semestral Vale dos Ipês</strong>, uma iniciativa estratégica da Superintendência de Inovação e parceria com os ambientes de inovação do ecossistema, para consolidar Lavras como a <strong>Capital do Futuro do Alimento</strong>.<br><br>
-            Este diagnóstico é o instrumento fundamental para que possamos compreender a maturidade do nosso ecossistema e, a partir de dados reais, formular políticas públicas e ações de fomento que atendam com precisão às necessidades de quem empreende no nosso território.<br><br>
-            A sua participação, atualizada a cada seis meses, permite que o <strong>LVRS+ (Pacto pela Inovação de Lavras)</strong> atue de forma personalizada, oferecendo suporte direto através dos nossos ambientes de inovação, os 12 Projetos Prioritários, programas de incentivo fiscal e conexões com investidores.<br><br>
-            Mais do que um levantamento estatístico, este censo visa monitorar o peso da tecnologia, do agrofoodtech e outros setores importantes no PIB de Lavras, garantindo que o seu negócio ganhe a projeção nacional e internacional que merece.<br><br>
-            Pela densidade das informações solicitadas, o preenchimento pode levar entre 50 a 60 minutos, mas o impacto gerado para o fortalecimento do seu negócio e da nossa cidade será duradouro. Contamos com você para construirmos juntos a Lavras do amanhã.<br><br>
-            <strong>Vale dos Ipês - Onde a inovação encontra o futuro.</strong>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style="color: {COR_TEXTO}; line-height: 1.8; text-align: justify; font-size: 0.95rem; background-color: #1A1E24; padding: 25px; border-radius: 10px; border: 1px solid #333;">
+        <strong>Prezado(a) Empreendedor(a),</strong><br><br>
+        É com satisfação que convidamos a sua startup a integrar o <strong>Censo Semestral Vale dos Ipês</strong>, uma iniciativa estratégica da Superintendência de Inovação e parceria com os ambientes de inovação do ecossistema, para consolidar Lavras como a <strong>Capital do Futuro do Alimento</strong>.<br><br>
+        Este diagnóstico é o instrumento fundamental para que possamos compreender a maturidade do nosso ecossistema e, a partir de dados reais, formular políticas públicas e ações de fomento que atendam com precisão às necessidades de quem empreende no nosso território.<br><br>
+        A sua participação, atualizada a cada seis meses, permite que o <strong>LVRS+ (Pacto pela Inovação de Lavras)</strong> atue de forma personalizada, oferecendo suporte direto através dos nossos ambientes de inovação, os 12 Projetos Prioritários, programas de incentivo fiscal e conexões com investidores.<br><br>
+        Mais do que um levantamento estatístico, este censo visa monitorar o peso da tecnologia, do agrofoodtech e outros setores importantes no PIB de Lavras, garantindo que o seu negócio ganhe a projeção nacional e internacional que merece.<br><br>
+        Pela densidade das informações solicitadas — que abrangem desde a governança e faturamento até o posicionamento global e impacto social — sugerimos que reserve entre <strong>50 a 60 minutos</strong> para o preenchimento, realizando-o com a atenção e a calma que um diagnóstico de maturidade exige.<br><br>
+        <strong>Aviso de Privacidade e Transparência:</strong> Ressaltamos que todas as <strong>informações estratégicas, financeiras e corporativas</strong> da sua startup serão protegidas por rigoroso sigilo. Em conformidade com a Lei Geral de Proteção de Dados (Lei Federal nº 13.709/2018) e a Orientação Administrativa Municipal nº 001/2026/CTTC, o tratamento destes dados tem a finalidade exclusiva de executar o planejamento estratégico das políticas públicas do ecossistema de inovação.<br><br>
+        Garantimos que <strong>dados pessoais (como contatos e endereços residenciais) não serão publicados</strong> em documentos de acesso público, e que a divulgação de relatórios macroeconômicos e de diagnóstico pelo Município ocorrerá unicamente com os dados de forma agregada e <strong>anonimizada</strong>.<br><br>
+        <strong>Vale dos Ipês - Onde a inovação encontra o futuro.</strong>
+    </div>
+    """, unsafe_allow_html=True)
 
     # FORMULÁRIO COMPLETO
     with st.form("censo_completo"):
