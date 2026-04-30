@@ -96,10 +96,10 @@ with tabs[0]:
 # --- ABA DIAGNÓSTICO (REESTRUTURADA COM TEXTO RETRÁTIL) ---
 with tabs[5]:
     st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("## Diagnóstico e Monitoramento de Startups do Ecossistema Vale dos Ipês")
-    
-    # TEXTO RETRÁTIL DO CENSO (Baseado na sua imagem)
-    with st.expander("📄 LEIA O MANIFESTO DO CENSO SEMESTRAL - VALE DOS IPÊS", expanded=False):
+    st.markdown("## Diagnóstico e Monitoramento de Startups do Ecossistema de Inovação Vale dos Ipês")
+
+# Manifesto Integral e Literal do Censo Semestral
+with st.expander("📄 LEIA O MANIFESTO DO CENSO SEMESTRAL - VALE DOS IPÊS", expanded=False):
     st.markdown(f"""
     <div style="color: {COR_TEXTO}; line-height: 1.8; text-align: justify; font-size: 0.95rem; background-color: #1A1E24; padding: 25px; border-radius: 10px; border: 1px solid #333;">
         <strong>Prezado(a) Empreendedor(a),</strong><br><br>
