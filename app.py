@@ -110,7 +110,7 @@ with st.expander("📄 LEIA O MANIFESTO DO CENSO SEMESTRAL - VALE DOS IPÊS", ex
         Pela densidade das informações solicitadas — que abrangem desde a governança e faturamento até o posicionamento global e impacto social — sugerimos que reserve entre <strong>50 a 60 minutos</strong> para o preenchimento, realizando-o com a atenção e a calma que um diagnóstico de maturidade exige.<br><br>
         <strong>Aviso de Privacidade e Transparência:</strong> Ressaltamos que todas as <strong>informações estratégicas, financeiras e corporativas</strong> da sua startup serão protegidas por rigoroso sigilo. Em conformidade com a Lei Geral de Proteção de Dados (Lei Federal nº 13.709/2018) e a Orientação Administrativa Municipal nº 001/2026/CTTC, o tratamento destes dados tem a finalidade exclusiva de executar o planejamento estratégico das políticas públicas do ecossistema de inovação.<br><br>
         Garantimos que <strong>dados pessoais (como contatos e endereços residenciais) não serão publicados</strong> em documentos de acesso público, e que a divulgação de relatórios macroeconômicos e de diagnóstico pelo Município ocorrerá unicamente com os dados de forma agregada e <strong>anonimizada</strong>.<br><br>
-        <strong>Vale dos Ipês - Onde a inovação encontra o futuro.</strong>
+        <strong>Vale dos Ipês - Onde a inovação encontra o futuro. </strong>
     </div>
     """, unsafe_allow_html=True)
 
