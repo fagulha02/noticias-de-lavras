@@ -21,7 +21,6 @@ st.markdown(f"""
     .stApp {{ background-color: #0E1117; }}
     * {{ font-family: 'Montserrat', sans-serif; color: {COR_TEXTO}; }}
     
-    /* Estilo dos Cards */
     .card {{ 
         background: linear-gradient(145deg, #1E2129, #161B22); 
         padding: 22px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #333; 
@@ -30,14 +29,12 @@ st.markdown(f"""
     .card:hover {{ border-color: {COR_VERDE}; transform: translateY(-3px); }}
     .badge {{ font-size: 0.7rem; padding: 3px 10px; border-radius: 5px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; display: inline-block; }}
     
-    /* Botões Arredondados */
     div.stButton > button {{
         background-color: transparent; color: white; border: 2px solid {COR_VERDE} !important;
         border-radius: 50px; padding: 10px 40px; font-weight: 700; width: 100%; transition: 0.4s;
     }}
     div.stButton > button:hover {{ background-color: {COR_VERDE} !important; color: #0E1117 !important; box-shadow: 0 0 20px {COR_VERDE}; }}
     
-    /* Expander/Texto Retrátil */
     .stExpander {{ background-color: {COR_FUNDO_MENU}; border: 1px solid #333 !important; border-radius: 10px !important; }}
     </style>
 """, unsafe_allow_html=True)
@@ -56,7 +53,8 @@ def fetch_radar_data(termo_base, extra_v="", regiao="Lavras", d_ini=None, d_fim=
     
     d_ini = d_ini if d_ini else date.today() - timedelta(days=30)
     d_fim = d_fim if d_fim else date.today()
-    query += f" after:{d_ini.strftime('%Y-%m-%d')} before:{d_f.strftime('%Y-%m-%d') if 'd_f' in locals() else date.today().strftime('%Y-%m-%d')}"
+    
+    query += f" after:{d_ini.strftime('%Y-%m-%d')} before:{d_fim.strftime('%Y-%m-%d')}"
     
     query_encoded = urllib.parse.quote(query)
     url = f"https://news.google.com/rss/search?q={query_encoded}&hl=pt-BR&gl=BR&ceid=BR:pt-419"
@@ -82,8 +80,7 @@ def render_filtros(key_prefix, default_days=30):
     with c_d2: fim = st.date_input("Até:", value=date.today(), key=f"fim_{key_prefix}")
     return reg, extra, ini, fim, c_btn
 
-# --- ABAS DE BUSCA (Notícias, Eventos, etc) ---
-# [As abas seguem o padrão do seu código funcional original]
+# --- ABAS ---
 with tabs[0]:
     st.markdown("<br>", unsafe_allow_html=True)
     reg, extra, d_i, d_f, c_btn = render_filtros("not", 7)
@@ -93,29 +90,31 @@ with tabs[0]:
         for item in st.session_state.db['n'][:10]:
             st.markdown(f'<div class="card" style="border-left: 5px solid {COR_AZUL};"><span class="badge" style="background:{COR_AZUL}33; color:{COR_AZUL};">Notícia</span><h3>{item.title}</h3><a href="{item.link}" target="_blank">Ler mais →</a></div>', unsafe_allow_html=True)
 
-# --- ABA DIAGNÓSTICO (REESTRUTURADA COM TEXTO RETRÁTIL) ---
+# ABA 1, 2, 3 e 4 seguem lógica similar (omitidas aqui para focar na correção da 5)
+
+# --- ABA DIAGNÓSTICO CORRIGIDA ---
 with tabs[5]:
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("## Diagnóstico e Monitoramento de Startups do Ecossistema de Inovação Vale dos Ipês")
 
-# Manifesto Integral e Literal do Censo Semestral
-with st.expander("📄 LEIA O MANIFESTO DO CENSO SEMESTRAL - VALE DOS IPÊS", expanded=False):
-    st.markdown(f"""
-    <div style="color: {COR_TEXTO}; line-height: 1.8; text-align: justify; font-size: 0.95rem; background-color: #1A1E24; padding: 25px; border-radius: 10px; border: 1px solid #333;">
-        <strong>Prezado(a) Empreendedor(a),</strong><br><br>
-        É com satisfação que convidamos a sua startup a integrar o <strong>Censo Semestral Vale dos Ipês</strong>, uma iniciativa estratégica da Superintendência de Inovação e parceria com os ambientes de inovação do ecossistema, para consolidar Lavras como a <strong>Capital do Futuro do Alimento</strong>.<br><br>
-        Este diagnóstico é o instrumento fundamental para que possamos compreender a maturidade do nosso ecossistema e, a partir de dados reais, formular políticas públicas e ações de fomento que atendam com precisão às necessidades de quem empreende no nosso território.<br><br>
-        A sua participação, atualizada a cada seis meses, permite que o <strong>LVRS+ (Pacto pela Inovação de Lavras)</strong> atue de forma personalizada, oferecendo suporte direto através dos nossos ambientes de inovação, os 12 Projetos Prioritários, programas de incentivo fiscal e conexões com investidores.<br><br>
-        Mais do que um levantamento estatístico, este censo visa monitorar o peso da tecnologia, do agrofoodtech e outros setores importantes no PIB de Lavras, garantindo que o seu negócio ganhe a projeção nacional e internacional que merece.<br><br>
-        Pela densidade das informações solicitadas — que abrangem desde a governança e faturamento até o posicionamento global e impacto social — sugerimos que reserve entre <strong>50 a 60 minutos</strong> para o preenchimento, realizando-o com a atenção e a calma que um diagnóstico de maturidade exige.<br><br>
-        <strong>Aviso de Privacidade e Transparência:</strong> Ressaltamos que todas as <strong>informações estratégicas, financeiras e corporativas</strong> da sua startup serão protegidas por rigoroso sigilo. Em conformidade com a Lei Geral de Proteção de Dados (Lei Federal nº 13.709/2018) e a Orientação Administrativa Municipal nº 001/2026/CTTC, o tratamento destes dados tem a finalidade exclusiva de executar o planejamento estratégico das políticas públicas do ecossistema de inovação.<br><br>
-        Garantimos que <strong>dados pessoais (como contatos e endereços residenciais) não serão publicados</strong> em documentos de acesso público, e que a divulgação de relatórios macroeconômicos e de diagnóstico pelo Município ocorrerá unicamente com os dados de forma agregada e <strong>anonimizada</strong>.<br><br>
-        <strong>Vale dos Ipês - Onde a inovação encontra o futuro. </strong>
-    </div>
-    """, unsafe_allow_html=True)
+    # Manifesto Retrátil (Indentado dentro da aba 5)
+    with st.expander("📄 LEIA O MANIFESTO DO CENSO SEMESTRAL - VALE DOS IPÊS", expanded=False):
+        st.markdown(f"""
+        <div style="color: {COR_TEXTO}; line-height: 1.8; text-align: justify; font-size: 0.95rem; background-color: #1A1E24; padding: 25px; border-radius: 10px; border: 1px solid #333;">
+            <strong>Prezado(a) Empreendedor(a),</strong><br><br>
+            É com satisfação que convidamos a sua startup a integrar o <strong>Censo Semestral Vale dos Ipês</strong>, uma iniciativa estratégica da Superintendência de Inovação e parceria com os ambientes de inovação do ecossistema, para consolidar Lavras como a <strong>Capital do Futuro do Alimento</strong>.<br><br>
+            Este diagnóstico é o instrumento fundamental para que possamos compreender a maturidade do nosso ecossistema e, a partir de dados reais, formular políticas públicas e ações de fomento que atendam com precisão às necessidades de quem empreende no nosso território.<br><br>
+            A sua participação, atualizada a cada seis meses, permite que o <strong>LVRS+ (Pacto pela Inovação de Lavras)</strong> atue de forma personalizada, oferecendo suporte direto através dos nossos ambientes de inovação, os 12 Projetos Prioritários, programas de incentivo fiscal e conexões com investidores.<br><br>
+            Mais do que um levantamento estatístico, este censo visa monitorar o peso da tecnologia, do agrofoodtech e outros setores importantes no PIB de Lavras, garantindo que o seu negócio ganhe a projeção nacional e internacional que merece.<br><br>
+            Pela densidade das informações solicitadas — que abrangem desde a governança e faturamento até o posicionamento global e impacto social — sugerimos que reserve entre <strong>50 a 60 minutos</strong> para o preenchimento, realizando-o com a atenção e a calma que um diagnóstico de maturidade exige.<br><br>
+            <strong>Aviso de Privacidade e Transparência:</strong> Ressaltamos que todas as <strong>informações estratégicas, financeiras e corporativas</strong> da sua startup serão protegidas por rigoroso sigilo. Em conformidade com a Lei Geral de Proteção de Dados (Lei Federal nº 13.709/2018) e a Orientação Administrativa Municipal nº 001/2026/CTTC, o tratamento destes dados tem a finalidade exclusiva de executar o planejamento estratégico das políticas públicas do ecossistema de inovação.<br><br>
+            Garantimos que <strong>dados pessoais (como contatos e endereços residenciais) não serão publicados</strong> em documentos de acesso público, e que a divulgação de relatórios macroeconômicos e de diagnóstico pelo Município ocorrerá unicamente com os dados de forma agregada e <strong>anonimizada</strong>.<br><br>
+            <strong>Vale dos Ipês - Onde a inovação encontra o futuro. </strong>
+        </div>
+        """, unsafe_allow_html=True)
 
-    # FORMULÁRIO COMPLETO
-with st.form("censo_completo"):
+    # Formulário (Indentado dentro da aba 5, mas FORA do expander)
+    with st.form("censo_completo"):
         st.markdown("### 1. Identificação da Startup")
         c1, c2 = st.columns(2)
         with c1:
